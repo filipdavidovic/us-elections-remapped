@@ -10,9 +10,13 @@ body {
     margin-bottom: 1em;
 }
 
-#nav-container .row {
+#nav-container > .row {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
+}
+
+#subnav-container > .row {
+    padding-top: 1.5em;
 }
 
 h1.heading {
@@ -22,6 +26,68 @@ h1.heading {
 
 .text-center {
     text-align: center;
+}
+
+img.profile {
+    display: block;
+    margin: auto;
+    width: 5rem;
+    height: 5rem;
+    position: absolute;
+    top: 1.25rem;
+    left: 3rem;
+}
+
+.election-results-bar {
+    border-radius: 0.4rem;
+    background-color: white;
+    width: 100%;
+    height: 2.3rem;
+}
+
+.democrat {
+    color: rgb(26, 106, 255);
+}
+
+.republican {
+    color: rgb(255, 74, 67);
+}
+
+.election-results-indicator {
+    text-align: center;
+    margin-top: 0.5em;
+}
+
+.election-results-win-indicator {
+    left: 50%;
+    height: 2.3rem;
+    width: 2px;
+    position: absolute;
+    background: black;
+}
+
+.election-results-bar::before {
+    content: "";
+    width: 56%;
+    height: 2.3rem;
+    background-color: rgb(26, 106, 255);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    border-bottom-left-radius: 0.4rem;
+    border-top-left-radius: 0.4rem;
+}
+
+.election-results-bar::after {
+    content: "";
+    width: 44%;
+    height: 2.3rem;
+    background-color: rgb(255, 74, 67);
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    border-bottom-right-radius: 0.4rem;
+    border-top-right-radius: 0.4rem;
 }
 
 #container {

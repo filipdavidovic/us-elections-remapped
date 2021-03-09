@@ -16,8 +16,6 @@
 </head>
 <body>
     <div class="container" id="nav-container">
-        <h1 class="heading">US Elections Remapped</h1>
-
         <div class="row">
             <div class="col-4">
                 <div class="input-group">
@@ -49,7 +47,27 @@
             </div>
         </div>
 
-        <div style="height: 3em">
+        <div class="row" id="election-results-row">
+            <div class="col-2">
+                <img class="profile" src="https://politics-static.cnn.io/2020/static-assets/images/headshots/biden-medium.png" alt="Democrat Candidate Profile">
+            </div>
+
+            <div class="col-8">
+                <div class="election-results-indicator"><strong>270 to Win</strong></div>
+
+                <span class="fa fa-angle-down text-center" style="display: block"></span>
+
+                <div class="election-results-bar">
+                    <span class="election-results-win-indicator"></span>
+                </div>
+            </div>
+
+            <div class="col-2">
+                <img class="profile" src="https://politics-static.cnn.io/2020/static-assets/images/headshots/trump-medium.png" alt="Republican Candidate Profile">
+            </div>
+        </div>
+
+        <div id="subnav-container" style="height: 4em">
             <div class="row hidden" id="long-term-row">
                 <div class="col-5">
                     <div class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -85,16 +103,18 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-2"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-2"></div>
 
-        <div class="col-8">
-            <div id="container">
-                <svg id="map"></svg>
+            <div class="col-8">
+                <div id="container">
+                    <svg id="map"></svg>
+                </div>
             </div>
-        </div>
 
-        <div class="col-2"></div>
+            <div class="col-2"></div>
+        </div>
     </div>
 
     <div id="tooltip" class="hidden">
