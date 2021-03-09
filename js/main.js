@@ -86,12 +86,9 @@ function drawMap() {
  * @param id {Number} - ID of the feature
  */
 function showTooltip(d, id) {
-    // Get the current mouse position (as integer)
-    let mouse = d3.mouse(map.node()).map((d) => parseInt(d));
-
     tooltip
-        .css('left', mouse[0])
-        .css('top', mouse[1]+ 140)
+        .css('left', d3.event.clientX + 15)
+        .css('top', d3.event.clientY + 15)
         .html(['<strong>', d.properties.name, '</strong>',
                '<br>',
                'Population: ', d.properties.population,
