@@ -38,6 +38,11 @@ img.profile {
     left: 3rem;
 }
 
+.candidate-name {
+    position: absolute;
+    font-size: 1.2em;
+}
+
 .election-results-bar {
     border-radius: 0.4rem;
     background-color: white;

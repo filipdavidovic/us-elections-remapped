@@ -1,4 +1,52 @@
+// Constants
+let presidentialCandidates = {
+    '2012': {
+        'democrats': {
+            'name': 'Barack Obama',
+            'profile': 'https://images-na.ssl-images-amazon.com/images/I/51NuSfifT-L._AC_.jpg'
+        },
+        'republicans': {
+            'name': 'Mitt Romney',
+            'profile': 'https://upload.wikimedia.org/wikipedia/commons/4/4f/Mitt_Romney_Circle.png'
+        }
+    },
+    '2016': {
+        'democrats': {
+            'name': 'Hillary Clinton',
+            'profile': 'https://pngimg.com/uploads/hillary_clinton/hillary_clinton_PNG26.png'
+        },
+        'republicans': {
+            'name': 'Donald Trump',
+            'profile': 'https://paaia.org/wp-content/uploads/2020/02/Donald-Trump-circle-1024x1024.png'
+        }
+    },
+    '2020': {
+        'democrats': {
+            'name': 'Joe Biden',
+            'profile': 'https://upload.wikimedia.org/wikipedia/commons/2/26/Biden_Circle.png'
+        },
+        'republicans': {
+            'name': 'Donald Trump',
+            'profile': 'https://paaia.org/wp-content/uploads/2020/02/Donald-Trump-circle-1024x1024.png'
+        }
+    }
+}
+
 // Select and configure elements related to pagination
+$('#year-selector').on('change', function() {
+    $('#election-results-row').removeClass('hidden');
+
+    let selected = $('select option:selected').text();
+
+    // Update profile images and related text
+    $('#democrat-profile').attr('src', presidentialCandidates[selected].democrats.profile);
+    $('#republican-profile').attr('src', presidentialCandidates[selected].republicans.profile);
+    $('#democrat-name').text(presidentialCandidates[selected].democrats.name);
+    $('#republican-name').text(presidentialCandidates[selected].republicans.name);
+
+    // TODO: Update results indicator using election data
+})
+
 $('#electoral-college-select').on('click', function() {
     $('#short-term-row').addClass('hidden');
     $('#long-term-row').addClass('hidden');
@@ -28,7 +76,6 @@ let tooltip = $('#tooltip');
 let proj = d3.geo.albersUsa();  // Map projection, scale and center will be defined later
 let topology,
     geometries,
-    dataById = {},
     carto = d3.cartogram()
         .projection(proj)
         .properties(function(d) {
