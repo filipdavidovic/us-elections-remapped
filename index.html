@@ -15,7 +15,77 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
 </head>
 <body>
-    <h1 class="heading">Something smart...</h1>
+    <div class="container" id="nav-container">
+        <h1 class="heading">US Elections Remapped</h1>
+
+        <h2 class="text-center">Choose an election year and a category you want to visualise</h2>
+
+        <div class="row">
+            <div class="col-4">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text">Year</label>
+                    </div>
+
+                    <select class="form-control" id="year-selector">
+                        <option disabled selected>Choose election year</option>
+                        <option>2012</option>
+                        <option>2016</option>
+                        <option>2020</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-8">
+                <div class="btn-group btn-group-toggle" data-toggle="buttons" style="width: 100%">
+                    <label class="btn btn-light">
+                        <input type="radio" name="options" id="electoral-college-select" autocomplete="off" checked> Electoral College
+                    </label>
+                    <label class="btn btn-light active">
+                        <input type="radio" name="options" id="long-term-select" autocomplete="off"> Long Term Factors
+                    </label>
+                    <label class="btn btn-light">
+                        <input type="radio" name="options" id="short-term-select" autocomplete="off"> Short Term Factors
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div style="height: 3em">
+            <div class="row hidden" id="long-term-row">
+                <div class="col-5">
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-light active">
+                            <input type="radio" name="options" id="lt-social-class" autocomplete="off" checked> Social Class
+                        </label>
+                        <label class="btn btn-light">
+                            <input type="radio" name="options" id="lt-race" autocomplete="off"> Race
+                        </label>
+                        <label class="btn btn-light">
+                            <input type="radio" name="options" id="lt-age" autocomplete="off"> Age
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-8"></div>
+            </div>
+
+            <div class="row hidden" id="short-term-row">
+                <div class="col-5">
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-light active">
+                            <input type="radio" name="options" id="st-coronavirus" autocomplete="off" checked> Coronavirus
+                        </label>
+                        <label class="btn btn-light">
+                            <input type="radio" name="options" id="st-voter-turnout" autocomplete="off"> Voter Turnout
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-7"></div>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-2"></div>

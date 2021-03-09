@@ -1,3 +1,19 @@
+// Select and configure elements related to pagination
+$('#electoral-college-select').on('click', function() {
+    $('#short-term-row').addClass('hidden');
+    $('#long-term-row').addClass('hidden');
+});
+
+$('#long-term-select').on('click', function() {
+    $('#short-term-row').addClass('hidden');
+    $('#long-term-row').removeClass('hidden');
+});
+
+$('#short-term-select').on('click', function() {
+    $('#long-term-row').addClass('hidden');
+    $('#short-term-row').removeClass('hidden');
+});
+
 // Select the elements needed for the map, and set their children and attributes
 let map = d3.select('#map'),
     layer = map.append('g')
@@ -77,11 +93,11 @@ function showTooltip(d, id) {
         .css('left', mouse[0])
         .css('top', mouse[1] + 40)
         .html(['<strong>', d.properties.name, '</strong>',
-                     '<br>',
-                     'Population: ', d.properties.population,
-                     '<br>',
-                     'Electoral Votes: ', d.properties.electoralVotes,
-                     '<br>'].join(''));
+               '<br>',
+               'Population: ', d.properties.population,
+               '<br>',
+               'Electoral Votes: ', d.properties.electoralVotes,
+               '<br>'].join(''));
 
     tooltip.removeClass('hidden');
 }
@@ -95,23 +111,3 @@ function showTooltip(d, id) {
 function hideTooltip(d, id) {
     tooltip.addClass('hidden')
 }
-
-// Code to render a static US map
-// let svg = d3.select('#map-container');
-//
-// let path = d3.geoPath();
-//
-// d3.json('https://d3js.org/us-10m.v1.json', function(error, us) {
-//     if (error) throw error;
-//
-//     svg.append('g')
-//         .attr('class', 'states')
-//         .attr('fill', 'none')
-//         .attr('stroke', '#000')
-//         // .attr('stroke-linejoin', 'round')
-//         // .attr('stroke-linecap', 'round')
-//         .selectAll('path')
-//         .data(topojson.feature(us, us.objects.states).features)  // Map data items from array to path elements
-//         .enter().append('path')  // Create placeholder path elements
-//         .attr('d', path);
-// });
