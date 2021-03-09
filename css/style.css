@@ -15,6 +15,10 @@ body {
     margin-bottom: 0.5em;
 }
 
+#nav-container .btn-group {
+    width: 100%;
+}
+
 #subnav-container > .row {
     padding-top: 1.5em;
 }
@@ -56,6 +60,14 @@ img.profile {
 
 .republican {
     color: rgb(255, 74, 67);
+}
+
+.teal {
+    color: #17a2b8;
+}
+
+.green {
+    color: #28a745;
 }
 
 .election-results-indicator {

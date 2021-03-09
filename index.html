@@ -33,15 +33,15 @@
             </div>
 
             <div class="col-8">
-                <div class="btn-group btn-group-toggle" data-toggle="buttons" style="width: 100%">
-                    <label class="btn btn-light">
-                        <input type="radio" name="options" id="electoral-college-select" autocomplete="off" checked> Electoral College
+                <div id="factor-selector" class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-info">
+                        <input value="electoral-college" type="radio" name="options" id="electoral-college-select" autocomplete="off"> Electoral College
                     </label>
-                    <label class="btn btn-light active">
-                        <input type="radio" name="options" id="long-term-select" autocomplete="off"> Long Term Factors
+                    <label class="btn btn-info">
+                        <input value="long-term" type="radio" name="options" id="long-term-select" autocomplete="off"> Long Term Factors
                     </label>
-                    <label class="btn btn-light">
-                        <input type="radio" name="options" id="short-term-select" autocomplete="off"> Short Term Factors
+                    <label class="btn btn-info">
+                        <input value="short-term" type="radio" name="options" id="short-term-select" autocomplete="off"> Short Term Factors
                     </label>
                 </div>
             </div>
@@ -72,57 +72,57 @@
 
         <div id="subnav-container" style="height: 4em">
             <div class="row hidden" id="long-term-row">
-                <div class="col-5">
+                <div class="col-3"></div>
+
+                <div class="col-6">
                     <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                        <label class="btn btn-light active">
-                            <input type="radio" name="options" id="lt-social-class" autocomplete="off" checked> Social Class
+                        <label class="btn btn-success content-changer">
+                            <input value="social-class" type="radio" name="options" id="lt-social-class" autocomplete="off"> Social Class
                         </label>
-                        <label class="btn btn-light">
-                            <input type="radio" name="options" id="lt-race" autocomplete="off"> Race
+                        <label class="btn btn-success content-changer">
+                            <input value="race" type="radio" name="options" id="lt-race" autocomplete="off"> Race
                         </label>
-                        <label class="btn btn-light">
-                            <input type="radio" name="options" id="lt-age" autocomplete="off"> Age
+                        <label class="btn btn-success content-changer">
+                            <input value="age" type="radio" name="options" id="lt-age" autocomplete="off"> Age
                         </label>
                     </div>
                 </div>
 
-                <div class="col-8"></div>
+                <div class="col-3"></div>
             </div>
 
             <div class="row hidden" id="short-term-row">
-                <div class="col-5">
+                <div class="col-3"></div>
+
+                <div class="col-6">
                     <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                        <label class="btn btn-light active">
-                            <input type="radio" name="options" id="st-coronavirus" autocomplete="off" checked> Coronavirus
+                        <label class="btn btn-success content-changer">
+                            <input value="coronavirus" type="radio" name="options" id="st-coronavirus" autocomplete="off"> Coronavirus
                         </label>
-                        <label class="btn btn-light">
-                            <input type="radio" name="options" id="st-voter-turnout" autocomplete="off"> Voter Turnout
+                        <label class="btn btn-success content-changer">
+                            <input value="voter-turnout" type="radio" name="options" id="st-voter-turnout" autocomplete="off"> Voter Turnout
                         </label>
                     </div>
                 </div>
 
-                <div class="col-7"></div>
+                <div class="col-3"></div>
             </div>
         </div>
     </div>
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-2"></div>
-
             <div class="col-8">
                 <div id="container">
                     <svg id="map"></svg>
                 </div>
             </div>
 
-            <div class="col-2"></div>
+            <div id="storyline" class="col-4"></div>
         </div>
     </div>
 
-    <div id="tooltip" class="hidden">
-        <span>I am a tooltip</span>
-    </div>
+    <div id="tooltip" class="hidden"></div>
 
     <script src="js/main.js"></script>
 </body>

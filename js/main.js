@@ -33,9 +33,11 @@ let presidentialCandidates = {
 }
 
 // Select and configure elements related to pagination
-$('#year-selector').on('change', function() {
-    $('#election-results-row').removeClass('hidden');
+let storyline = $('#storyline');
+let shortTermRow = $('#short-term-row');
+let longTermRow = $('#long-term-row');
 
+$('#year-selector').on('change', function() {
     let selected = $('select option:selected').text();
 
     // Update profile images and related text
@@ -45,22 +47,107 @@ $('#year-selector').on('change', function() {
     $('#republican-name').text(presidentialCandidates[selected].republicans.name);
 
     // TODO: Update results indicator using election data
+
+    $('#election-results-row').removeClass('hidden');
+
+    setContent();
 })
 
 $('#electoral-college-select').on('click', function() {
-    $('#short-term-row').addClass('hidden');
-    $('#long-term-row').addClass('hidden');
+    shortTermRow.addClass('hidden');
+    longTermRow.addClass('hidden');
+
+    resetContentChangers();
+    setContent();
 });
 
 $('#long-term-select').on('click', function() {
-    $('#short-term-row').addClass('hidden');
-    $('#long-term-row').removeClass('hidden');
+    shortTermRow.addClass('hidden');
+    longTermRow.removeClass('hidden');
+
+    resetContentChangers();
+    setContent();
 });
 
 $('#short-term-select').on('click', function() {
-    $('#long-term-row').addClass('hidden');
-    $('#short-term-row').removeClass('hidden');
+    shortTermRow.removeClass('hidden');
+    longTermRow.addClass('hidden');
+
+    resetContentChangers();
+    setContent();
 });
+
+$('.content-changer').on('click', function() {
+    setContent();
+});
+
+function setContent() {
+    let year = $('select option:selected').text();
+    let factorType = $('#factor-selector label.active').find('input');
+
+    if (year === 'Choose election year') {
+        storyline.html('<h2 class="text-center" style="position:absolute;top:40%;">Select an election year from the dropdown.</h2>');
+    } else if (factorType.length === 0) {
+        storyline.html('<h2 class="text-center" style="position:absolute;top:40%;">Select a factor type from <span class="teal">teal</span> buttons on the top.</h2>');
+    } else if (factorType.val() === 'electoral-college') {
+        let html = '<p>Electoral college BLA BLA BLA.</p>';
+
+        storyline.html(html);
+
+        // TODO: Update the map
+    } else if (factorType.val() === 'long-term') {
+        let factor = $('#long-term-row label.active').find('input');
+        let html;
+
+        if (factor.length === 0) {
+            html = '<h2 class="text-center" style="position:absolute;top:40%;">Select a long term factor from <span class="green">green</span> buttons.</h2>';
+        } else if (factor.val() === 'social-class') {
+            html = '<p>Social class BLA BLA BLA.</p>';
+
+            // TODO: Update the map
+        } else if (factor.val() === 'race') {
+            html = '<p>Race BLA BLA BLA.</p>';
+
+            // TODO: Update the map
+        } else if (factor.val() === 'age') {
+            html = '<p>Age BLA BLA BLA.</p>';
+
+            // TODO: Update the map
+        } else {
+            throw Error('Unexpected value for long term factor: ' + factor.val());
+        }
+
+        storyline.html(html);
+    } else if (factorType.val() === 'short-term') {
+        let factor = $('#short-term-row label.active').find('input');
+        let html;
+
+        if (factor.length === 0) {
+            html = '<h2 class="text-center" style="position:absolute;top:40%;">Select a short term factor from <span class="green">green</span> buttons.</h2>';
+        } else if (factor.val() === 'coronavirus') {
+            html = '<p>Coronavirus BLA BLA BLA.</p>';
+
+            // TODO: Update the map
+        } else if (factor.val() === 'voter-turnout') {
+            html = '<p>Voter turnout BLA BLA BLA.</p>';
+
+            // TODO: Update the map
+        } else {
+            throw Error('Unexpected value for short term factor: ' + factor.val());
+        }
+
+        storyline.html(html);
+    } else {
+        throw Error('Unexpected value for factor type: ' + factorType.val());
+    }
+}
+
+setContent();
+
+function resetContentChangers() {
+    $('#subnav-container label').removeClass('active');
+    $('#subnav-container input').prop('checked', false);
+}
 
 // Select the elements needed for the map, and set their children and attributes
 let map = d3.select('#map'),
@@ -100,10 +187,10 @@ d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json', function(topo
     //
     // });
 
-    drawMap()
+    initMap()
 });
 
-function drawMap() {
+function initMap() {
     // Deform cartogram according to the data
     // let scale = d3.scale.linear()
     //     .domain([1, 14])
