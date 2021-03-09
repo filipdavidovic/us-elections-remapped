@@ -91,7 +91,7 @@ function showTooltip(d, id) {
 
     tooltip
         .css('left', mouse[0])
-        .css('top', mouse[1] + 40)
+        .css('top', mouse[1] + 150)
         .html(['<strong>', d.properties.name, '</strong>',
                '<br>',
                'Population: ', d.properties.population,
