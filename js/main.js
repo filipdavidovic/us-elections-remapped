@@ -6,6 +6,7 @@ let map = d3.select('#map'),
     states = layer.append('g')
         .attr('id', 'states')
         .selectAll('path');
+let tooltip = $('#tooltip');
 
 // Prepare cartogram variables
 let proj = d3.geo.albersUsa();  // Map projection, scale and center will be defined later
@@ -16,7 +17,9 @@ let topology,
         .projection(proj)
         .properties(function(d) {
             return {
-                name: d.properties.name
+                name: d.properties.name,
+                population: 'PLACEHOLDER',
+                electoralVotes: 'PLACEHOLDER',
             };
 
             // return dataById[d.properties.name];
@@ -54,6 +57,43 @@ function drawMap() {
         .attr('class', 'state')
         .attr('id', (d) => d.properties.name)
         .attr('d', path);
+
+    states
+        .on('mousemove', showTooltip)
+        .on('mouseout', hideTooltip);
+}
+
+/**
+ * Show the tooltip for a state.
+ *
+ * @param d {Feature} - The feature
+ * @param id {Number} - ID of the feature
+ */
+function showTooltip(d, id) {
+    // Get the current mouse position (as integer)
+    let mouse = d3.mouse(map.node()).map((d) => parseInt(d));
+
+    tooltip
+        .css('left', mouse[0])
+        .css('top', mouse[1] + 40)
+        .html(['<strong>', d.properties.name, '</strong>',
+                     '<br>',
+                     'Population: ', d.properties.population,
+                     '<br>',
+                     'Electoral Votes: ', d.properties.electoralVotes,
+                     '<br>'].join(''));
+
+    tooltip.removeClass('hidden');
+}
+
+/**
+ * Hide the tooltip.
+ *
+ * @param d - The feature
+ * @param id - ID of the feature
+ */
+function hideTooltip(d, id) {
+    tooltip.addClass('hidden')
 }
 
 // Code to render a static US map
