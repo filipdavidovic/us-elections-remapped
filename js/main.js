@@ -145,12 +145,11 @@ $(function() {
         tooltip
             .css('left', d3.event.clientX + 15)
             .css('top', d3.event.clientY + 15)
-            .html(['<strong>', d.properties.name, '</strong>',
-                '<br>',
-                'Population: ', d.properties.population,
-                '<br>',
-                'Electoral Votes: ', d.properties.electoralVotes,
-                '<br>'].join(''));
+            .loadTemplate('templates/electoral_college.tooltip.html', {
+                stateName: d.properties.name,
+                population: d.properties.population,
+                electoralVotes: d.properties.electoralVotes
+            });
 
         tooltip.removeClass('hidden');
     }
@@ -162,7 +161,7 @@ $(function() {
      * @param id - ID of the feature
      */
     function hideTooltip(d, id) {
-        tooltip.addClass('hidden')
+        tooltip.addClass('hidden');
     }
 
     // Configure elements related to pagination and content
