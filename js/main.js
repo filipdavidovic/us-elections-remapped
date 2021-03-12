@@ -197,16 +197,19 @@ function initMap() {
     //     .range([1, 1000]);
     // carto.value((d) => scale(getValue(d.properties.name)));
 
+    const colors = ['white', 'blue', 'red'];
+
     // Create the cartogram features
     let features = carto.features(topology, geometries),
         path = d3.geo.path().projection(proj);
 
     // Put the features on the map
     states = states.data(features)
-        .enter().append('path')
+         .enter().append('path')
         .attr('class', 'state')
         .attr('id', (d) => d.properties.name)
-        .attr('d', path);
+        .attr('d', path)
+        .style('fill', () => colors[Math.floor(Math.random() *2) + 1]);
 
     states
         .on('mousemove', showTooltip)
