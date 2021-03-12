@@ -153,14 +153,14 @@ function resetContentChangers() {
 var map = d3.select('#map'),
     layer = map.append('g')
         .attr('id', 'layer'),
-        // .attr('transform', 'translate(' + [-38, 32] + ')' + 'scale(' + 0.94 + ')'),
+    // .attr('transform', 'translate(' + [-38, 32] + ')' + 'scale(' + 0.94 + ')'),
     states = layer.append('g')
         .attr('id', 'states')
         .selectAll('path');
 var tooltip = $('#tooltip');
 
 // Prepare cartogram variables
-var proj = d3.geo.albersUsa();  // Map projection, scale and center will be defined later
+var proj = d3.geo.albersUsa(); // Map projection, scale and center will be defined later
 var topology,
     geometries,
     carto = d3.cartogram()
@@ -176,11 +176,10 @@ var topology,
         });
 
 // Read the geometry data
-// cantons.topojson
 d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json', function(topo) {
+
     topology = topo;
     geometries = topology.objects.states.geometries;
-    // geometries = topology.objects.cantons.geometries;
 
     // TODO: Parse the data and make it easily accessible by state ID
     // d3.json('/path/to/data', function(data) {
@@ -204,12 +203,13 @@ function initMap() {
     var path = d3.geo.path().projection(proj);
 
     // Put the features on the map
+
     states = states.data(features)
-         .enter().append('path')
+        .enter().append('path')
         .attr('class', 'state')
         .attr('id', (d) => d.properties.name)
         .attr('d', path)
-        .style('fill', () => colors[Math.floor(Math.random() *2) + 1]);
+        .style('fill', () => colors[Math.floor(Math.random() * 2) + 1]);
 
     states
         .on('mousemove', showTooltip)
@@ -223,15 +223,33 @@ function initMap() {
  * @param id {Number} - ID of the feature
  */
 function showTooltip(d, id) {
-    tooltip
-        .css('left', d3.event.clientX + 15)
-        .css('top', d3.event.clientY + 15)
-        .html(['<strong>', d.properties.name, '</strong>',
-               '<br>',
-               'Population: ', d.properties.population,
-               '<br>',
-               'Electoral Votes: ', d.properties.electoralVotes,
-               '<br>'].join(''));
+
+    var factorType = $('#factor-selector label.active').find('input');
+
+    if (factorType.val() === 'electoral-college') {
+        tooltip
+            .css('left', d3.event.clientX + 15)
+            .css('top', d3.event.clientY + 15)
+            .loadTemplate('templates/electoral_college.tooltip.html', {
+                stateName: d.properties.name,
+                population: d.properties.population,
+                electoralVotes: d.properties.electoralVotes
+            });
+    }
+
+    else if (factorType.val() === 'short-term'){
+        tooltip
+            .css('left', d3.event.clientX + 15)
+            .css('top', d3.event.clientY + 15);
+
+    }
+
+    else if (factorType.val() === 'long-term'){
+        tooltip
+            .css('left', d3.event.clientX + 15)
+            .css('top', d3.event.clientY + 15);
+
+    }
 
     tooltip.removeClass('hidden');
 }
