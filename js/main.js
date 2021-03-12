@@ -237,21 +237,27 @@ function showTooltip(d, id) {
             });
     }
 
-    else if (factorType.val() === 'short-term'){
+    else if (factorType.val() === 'short-term') {
         tooltip
             .css('left', d3.event.clientX + 15)
-            .css('top', d3.event.clientY + 15);
+            .css('top', d3.event.clientY + 15)
+            .loadTemplate('templates/long-term.tooltip.html', {
+                stateName: d.properties.name
+            });
 
     }
 
-    else if (factorType.val() === 'long-term'){
+    else {// if (factorType.val() === 'long-term'){
         tooltip
             .css('left', d3.event.clientX + 15)
-            .css('top', d3.event.clientY + 15);
+            .css('top', d3.event.clientY + 15)
+            .loadTemplate('templates/short-term.tooltip.html', {
+                stateName: d.properties.name
+            });
 
+
+        tooltip.removeClass('hidden');
     }
-
-    tooltip.removeClass('hidden');
 }
 
 /**
