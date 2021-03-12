@@ -70,6 +70,11 @@ img.profile {
     color: #28a745;
 }
 
+.text-center > h2 {
+    position:absolute;
+    top:40%
+}
+
 .election-results-indicator {
     text-align: center;
     margin-top: 0.5em;

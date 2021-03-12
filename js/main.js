@@ -1,6 +1,8 @@
 $(function() {
     // Constants
-    let presidentialCandidates = {
+    const colors = ['white', 'blue', 'red'];
+
+    const presidentialCandidates = {
         '2012': {
             'democrats': {
                 'name': 'Barack Obama',
@@ -52,7 +54,8 @@ $(function() {
             .enter().append('path')
             .attr('class', 'state')
             .attr('id', (d) => d.properties.name)
-            .attr('d', path);
+            .attr('d', path)
+            .style('fill', () => colors[Math.floor(Math.random() *2) + 1]);
 
         states
             .on('mousemove', showTooltip)
@@ -68,9 +71,9 @@ $(function() {
         let $factorType = $('#factor-selector label.active').find('input');
 
         if (selectedYear === 'Choose election year') {
-            $storyline.html('<h2 class="text-center" style="position:absolute;top:40%;">Select an election year from the dropdown.</h2>');
+            $storyline.html('<h2 class="text-center">Select an election year from the dropdown.</h2>');
         } else if (!$factorType.length) {
-            $storyline.html('<h2 class="text-center" style="position:absolute;top:40%;">Select a factor type from <span class="teal">teal</span> buttons on the top.</h2>');
+            $storyline.html('<h2 class="text-center">Select a factor type from <span class="teal">teal</span> buttons on the top.</h2>');
         } else if ($factorType.val() === 'electoral-college') {
             let html = '<p>Electoral college BLA BLA BLA.</p>';
 
@@ -82,7 +85,7 @@ $(function() {
             let html;
 
             if (!$factor.length) {
-                html = '<h2 class="text-center" style="position:absolute;top:40%;">Select a long term factor from <span class="green">green</span> buttons.</h2>';
+                html = '<h2 class="text-center">Select a long term factor from <span class="green">green</span> buttons.</h2>';
             } else if ($factor.val() === 'social-class') {
                 html = '<p>Social class BLA BLA BLA.</p>';
 
@@ -105,7 +108,7 @@ $(function() {
             let html;
 
             if (!$factor.length) {
-                html = '<h2 class="text-center" style="position:absolute;top:40%;">Select a short term factor from <span class="green">green</span> buttons.</h2>';
+                html = '<h2 class="text-center">Select a short term factor from <span class="green">green</span> buttons.</h2>';
             } else if ($factor.val() === 'coronavirus') {
                 html = '<p>Coronavirus BLA BLA BLA.</p>';
 
