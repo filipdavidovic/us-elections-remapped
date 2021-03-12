@@ -1,5 +1,5 @@
 // Constants
-let presidentialCandidates = {
+var presidentialCandidates = {
     '2012': {
         'democrats': {
             'name': 'Barack Obama',
@@ -33,12 +33,12 @@ let presidentialCandidates = {
 }
 
 // Select and configure elements related to pagination
-let storyline = $('#storyline');
-let shortTermRow = $('#short-term-row');
-let longTermRow = $('#long-term-row');
+var storyline = $('#storyline');
+var shortTermRow = $('#short-term-row');
+var longTermRow = $('#long-term-row');
 
 $('#year-selector').on('change', function() {
-    let selected = $('select option:selected').text();
+    var selected = $('select option:selected').text();
 
     // Update profile images and related text
     $('#democrat-profile').attr('src', presidentialCandidates[selected].democrats.profile);
@@ -82,22 +82,22 @@ $('.content-changer').on('click', function() {
 });
 
 function setContent() {
-    let year = $('select option:selected').text();
-    let factorType = $('#factor-selector label.active').find('input');
+    var year = $('select option:selected').text();
+    var factorType = $('#factor-selector label.active').find('input');
 
     if (year === 'Choose election year') {
         storyline.html('<h2 class="text-center">Select an election year from the dropdown.</h2>');
     } else if (factorType.length === 0) {
         storyline.html('<h2 class="text-center">Select a factor type from <span class="teal">teal</span> buttons on the top.</h2>');
     } else if (factorType.val() === 'electoral-college') {
-        let html = '<p>Electoral college BLA BLA BLA.</p>';
+        var html = '<p>Electoral college BLA BLA BLA.</p>';
 
         storyline.html(html);
 
         // TODO: Update the map
     } else if (factorType.val() === 'long-term') {
-        let factor = $('#long-term-row label.active').find('input');
-        let html;
+        var factor = $('#long-term-row label.active').find('input');
+        var html;
 
         if (factor.length === 0) {
             html = '<h2 class="text-center">Select a long term factor from <span class="green">green</span> buttons.</h2>';
@@ -119,8 +119,8 @@ function setContent() {
 
         storyline.html(html);
     } else if (factorType.val() === 'short-term') {
-        let factor = $('#short-term-row label.active').find('input');
-        let html;
+        var factor = $('#short-term-row label.active').find('input');
+        var html;
 
         if (factor.length === 0) {
             html = '<h2 class="text-center">Select a short term factor from <span class="green">green</span> buttons.</h2>';
@@ -150,18 +150,18 @@ function resetContentChangers() {
 }
 
 // Select the elements needed for the map, and set their children and attributes
-let map = d3.select('#map'),
+var map = d3.select('#map'),
     layer = map.append('g')
         .attr('id', 'layer'),
         // .attr('transform', 'translate(' + [-38, 32] + ')' + 'scale(' + 0.94 + ')'),
     states = layer.append('g')
         .attr('id', 'states')
         .selectAll('path');
-let tooltip = $('#tooltip');
+var tooltip = $('#tooltip');
 
 // Prepare cartogram variables
-let proj = d3.geo.albersUsa();  // Map projection, scale and center will be defined later
-let topology,
+var proj = d3.geo.albersUsa();  // Map projection, scale and center will be defined later
+var topology,
     geometries,
     carto = d3.cartogram()
         .projection(proj)
@@ -192,7 +192,7 @@ d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json', function(topo
 
 function initMap() {
     // Deform cartogram according to the data
-    // let scale = d3.scale.linear()
+    // var scale = d3.scale.linear()
     //     .domain([1, 14])
     //     .range([1, 1000]);
     // carto.value((d) => scale(getValue(d.properties.name)));
@@ -200,8 +200,8 @@ function initMap() {
     const colors = ['white', 'blue', 'red'];
 
     // Create the cartogram features
-    let features = carto.features(topology, geometries),
-        path = d3.geo.path().projection(proj);
+    var features = carto.features(topology, geometries);
+    var path = d3.geo.path().projection(proj);
 
     // Put the features on the map
     states = states.data(features)
