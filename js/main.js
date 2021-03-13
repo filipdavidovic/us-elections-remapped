@@ -1,5 +1,5 @@
 // Constants
-var presidentialCandidates = {
+let presidentialCandidates = {
     '2012': {
         'democrats': {
             'name': 'Barack Obama',
@@ -33,12 +33,12 @@ var presidentialCandidates = {
 }
 
 // Select and configure elements related to pagination
-var storyline = $('#storyline');
-var shortTermRow = $('#short-term-row');
-var longTermRow = $('#long-term-row');
+let storyline = $('#storyline');
+let shortTermRow = $('#short-term-row');
+let longTermRow = $('#long-term-row');
 
 $('#year-selector').on('change', function() {
-    var selected = $('select option:selected').text();
+    let selected = $('select option:selected').text();
 
     // Update profile images and related text
     $('#democrat-profile').attr('src', presidentialCandidates[selected].democrats.profile);
@@ -82,22 +82,22 @@ $('.content-changer').on('click', function() {
 });
 
 function setContent() {
-    var year = $('select option:selected').text();
-    var factorType = $('#factor-selector label.active').find('input');
+    let year = $('select option:selected').text();
+    let factorType = $('#factor-selector label.active').find('input');
 
     if (year === 'Choose election year') {
         storyline.html('<h2 class="text-center">Select an election year from the dropdown.</h2>');
     } else if (factorType.length === 0) {
         storyline.html('<h2 class="text-center">Select a factor type from <span class="teal">teal</span> buttons on the top.</h2>');
     } else if (factorType.val() === 'electoral-college') {
-        var html = '<p>Electoral college BLA BLA BLA.</p>';
+        let html = '<p>Electoral college BLA BLA BLA.</p>';
 
         storyline.html(html);
 
         // TODO: Update the map
     } else if (factorType.val() === 'long-term') {
-        var factor = $('#long-term-row label.active').find('input');
-        var html;
+        let factor = $('#long-term-row label.active').find('input');
+        let html;
 
         if (factor.length === 0) {
             html = '<h2 class="text-center">Select a long term factor from <span class="green">green</span> buttons.</h2>';
@@ -119,8 +119,8 @@ function setContent() {
 
         storyline.html(html);
     } else if (factorType.val() === 'short-term') {
-        var factor = $('#short-term-row label.active').find('input');
-        var html;
+        let factor = $('#short-term-row label.active').find('input');
+        let html;
 
         if (factor.length === 0) {
             html = '<h2 class="text-center">Select a short term factor from <span class="green">green</span> buttons.</h2>';
@@ -150,87 +150,80 @@ function resetContentChangers() {
 }
 
 // Select the elements needed for the map, and set their children and attributes
-var map = d3.select('#map'),
+let map = d3.select('#map'),
     layer = map.append('g')
         .attr('id', 'layer'),
     // .attr('transform', 'translate(' + [-38, 32] + ')' + 'scale(' + 0.94 + ')'),
     states = layer.append('g')
         .attr('id', 'states')
         .selectAll('path');
-var tooltip = $('#tooltip');
+let tooltip = $('#tooltip');
 
 
-// Prepare cartogram variables
-var proj = d3.geo.albersUsa();  // Map projection, scale and center will be defined later
-var topology,
+// Prepare cartogram letiables
+let proj = d3.geo.albersUsa();  // Map projection, scale and center will be defined later
+let topology,
     geometries,
+    dataByState,
     carto = d3.cartogram()
         .projection(proj)
         .properties(function(d) {
+            let stateName = d.properties.name;
 
-            var stateName = d.properties.name;
-            console.log(d.properties);
-
-            return {
-                name: stateName,
-                population: getPopulation(stateName),
-                electoralVotes: '',
+            if (stateName in dataByState) {
+                return {
+                    name: stateName,
+                    winnerParty: dataByState[stateName]['winner_party'],
+                    electoralVotes: dataByState[stateName]['electoral_college_votes'],
+                };
+            } else {
+                return {
+                    excluded: true,
+                }
             }
         });
-
-
-
-
-function sendDef(value){
-    return value;
-}
-
-function getPopulation(stateName){
-
-    //TODO:  Parse the data and make it easily accessible by state ID
-
-}
 
 d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json', function(topo) {
 
     topology = topo;
     geometries = topology.objects.states.geometries;
 
-    d3.json('./js/indexed_pres.json', function(data)
+    d3.json('data/indexed_pres.json', function(data)
     {
-        value = data[stateName]['total_votes'];
+        dataByState = data;
 
-        // console.log(value);
-        // return data[stateName]['total_votes'];
+        initMap();
     });
-    initMap();
 });
 
 
 function initMap() {
 
     // Deform cartogram according to the data
-    // var scale = d3.scale.linear()
+    // let scale = d3.scale.linear()
     //     .domain([1, 14])
     //     .range([1, 1000]);
     // carto.value((d) => scale(getValue(d.properties.name)));
 
-    const colors = ['white', 'blue', 'red'];
-
     // Create the cartogram features
-
-    var features = carto.features(topology, geometries);
-    var path = d3.geo.path().projection(proj);
+    let features = carto.features(topology, geometries);
+    let path = d3.geo.path().projection(proj);
 
     // Put the features on the map
     states = states.data(features)
         .enter().append('path')
-        .attr('class', 'state')
+        .filter((d) => 'name' in d.properties)
         .attr('id', (d) => d.properties.name)
         .attr('d', path)
-        .style('fill', () => colors[Math.floor(Math.random() *2) + 1]);
-
-    console.log(features[0].properties.name)
+        .attr('class', function(d) {
+            if (d.properties.winnerParty === 'DEM') {
+                return 'state democrat-f';
+            } else if (d.properties.winnerParty === 'REP') {
+                return 'state republican-f'
+            } else {
+                throw Error(`Unrecognized winner party "${d.properties.winnerParty}"`)
+            }
+        });
 
     states
         .on('mousemove', showTooltip)
