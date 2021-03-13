@@ -189,6 +189,13 @@ function getPopulation(stateName){
 
     //TODO:  Parse the data and make it easily accessible by state ID
 
+}
+
+d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json', function(topo) {
+
+    topology = topo;
+    geometries = topology.objects.states.geometries;
+
     d3.json('./js/indexed_pres.json', function(data)
     {
         value = data[stateName]['total_votes'];
@@ -196,13 +203,6 @@ function getPopulation(stateName){
         // console.log(value);
         // return data[stateName]['total_votes'];
     });
-
-}
-
-d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json', function(topo) {
-
-    topology = topo;
-    geometries = topology.objects.states.geometries;
     initMap();
 });
 
