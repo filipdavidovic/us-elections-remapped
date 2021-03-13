@@ -36,6 +36,8 @@ var presidentialCandidates = {
 var storyline = $('#storyline');
 var shortTermRow = $('#short-term-row');
 var longTermRow = $('#long-term-row');
+var factorType = $('#factor-selector label.active').find('input');
+
 
 $('#year-selector').on('change', function() {
     var selected = $('select option:selected').text();
@@ -82,8 +84,9 @@ $('.content-changer').on('click', function() {
 });
 
 function setContent() {
-    var year = $('select option:selected').text();
+
     var factorType = $('#factor-selector label.active').find('input');
+    var year = $('select option:selected').text();
 
     if (year === 'Choose election year') {
         storyline.html('<h2 class="text-center">Select an election year from the dropdown.</h2>');
@@ -203,12 +206,13 @@ function initMap() {
     var path = d3.geo.path().projection(proj);
 
     // Put the features on the map
-
+    console.log(factorType);
     states = states.data(features)
         .enter().append('path')
         .attr('class', 'state')
         .attr('id', (d) => d.properties.name)
         .attr('d', path)
+        .attr('factorType', factorType)
         .style('fill', () => colors[Math.floor(Math.random() * 2) + 1]);
 
     states
@@ -222,11 +226,14 @@ function initMap() {
  * @param d {Feature} - The feature
  * @param id {Number} - ID of the feature
  */
-function showTooltip(d, id) {
+function showTooltip(d, id, factorType) {
 
-    var factorType = $('#factor-selector label.active').find('input');
+    // FIGURE OUT HOW TO GET THE FACTOR TYPE RIGHT?
+    //var factorType = $('#factor-selector label.active').find('input'); // this does not work properly
 
-    if (factorType.val() === 'electoral-college') {
+    console.log(factorType);
+
+    if (factorType === 'electoral-college') {
         tooltip
             .css('left', d3.event.clientX + 15)
             .css('top', d3.event.clientY + 15)
@@ -237,7 +244,7 @@ function showTooltip(d, id) {
             });
     }
 
-    else if (factorType.val() === 'short-term') {
+    else if (factorType === 'short-term') {
         tooltip
             .css('left', d3.event.clientX + 15)
             .css('top', d3.event.clientY + 15)
