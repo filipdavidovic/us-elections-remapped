@@ -36,8 +36,6 @@ var presidentialCandidates = {
 var storyline = $('#storyline');
 var shortTermRow = $('#short-term-row');
 var longTermRow = $('#long-term-row');
-var factorType = $('#factor-selector label.active').find('input');
-
 
 $('#year-selector').on('change', function() {
     var selected = $('select option:selected').text();
@@ -84,9 +82,8 @@ $('.content-changer').on('click', function() {
 });
 
 function setContent() {
-
-    var factorType = $('#factor-selector label.active').find('input');
     var year = $('select option:selected').text();
+    var factorType = $('#factor-selector label.active').find('input');
 
     if (year === 'Choose election year') {
         storyline.html('<h2 class="text-center">Select an election year from the dropdown.</h2>');
@@ -163,37 +160,47 @@ var map = d3.select('#map'),
 var tooltip = $('#tooltip');
 
 // Prepare cartogram variables
-var proj = d3.geo.albersUsa(); // Map projection, scale and center will be defined later
+var proj = d3.geo.albersUsa();  // Map projection, scale and center will be defined later
 var topology,
     geometries,
     carto = d3.cartogram()
         .projection(proj)
         .properties(function(d) {
+
+            var stateName = d.properties.name;
+
             return {
-                name: d.properties.name,
-                population: 'PLACEHOLDER',
-                electoralVotes: 'PLACEHOLDER',
-            };
+                name: stateName,
+                population: getPopulation(stateName),
+                electoralVotes: '',
+            }
 
             // return dataById[d.properties.name];
         });
 
-// Read the geometry data
 
-    d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json', function(topo) {
+function getPopulation(stateName){
+
+    //TODO:  Parse the data and make it easily accessible by state ID
+
+    d3.json('./js/indexed_pres.json', function(d)
+    {
+        console.log(d[stateName]);
+        return d[stateName];
+    });
+
+}
+
+d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json', function(topo) {
+
     topology = topo;
     geometries = topology.objects.states.geometries;
-
-
-    // TODO: Parse the data and make it easily accessible by state ID
-        d3.json('/indexed_pres.json', function(data) {
-    //
-     });
-
-    initMap()
+    initMap();
 });
 
+
 function initMap() {
+
     // Deform cartogram according to the data
     // var scale = d3.scale.linear()
     //     .domain([1, 14])
@@ -203,18 +210,19 @@ function initMap() {
     const colors = ['white', 'blue', 'red'];
 
     // Create the cartogram features
+
     var features = carto.features(topology, geometries);
     var path = d3.geo.path().projection(proj);
 
     // Put the features on the map
-    console.log(factorType);
     states = states.data(features)
         .enter().append('path')
         .attr('class', 'state')
         .attr('id', (d) => d.properties.name)
         .attr('d', path)
-        .attr('factorType', factorType)
-        .style('fill', () => colors[Math.floor(Math.random() * 2) + 1]);
+        .style('fill', () => colors[Math.floor(Math.random() *2) + 1]);
+
+    console.log(features[0].properties)
 
     states
         .on('mousemove', showTooltip)
@@ -226,48 +234,29 @@ function initMap() {
  *
  * @param d {Feature} - The feature
  * @param id {Number} - ID of the feature
+ * @param data
  */
-function showTooltip(d, id, factorType) {
+function showTooltip(d, id, data) {
 
-    // FIGURE OUT HOW TO GET THE FACTOR TYPE RIGHT?
-    //var factorType = $('#factor-selector label.active').find('input'); // this does not work properly
 
-    console.log(factorType);
+    //get context (i.e electoral college)
 
-    if (factorType === 'electoral-college') {
+
+    if (true) {
         tooltip
             .css('left', d3.event.clientX + 15)
             .css('top', d3.event.clientY + 15)
             .loadTemplate('templates/electoral_college.tooltip.html', {
+
+                // set those according to what you want to see with the tooltip.
+                // let us first implement the electoral_college case
+
                 stateName: d.properties.name,
                 population: d.properties.population,
-                electoralVotes: d.properties.electoralVotes
+                electoralVotes: 'waiting for value...'
             });
     }
-
-    else if (factorType === 'short-term') {
-        tooltip
-            .css('left', d3.event.clientX + 15)
-            .css('top', d3.event.clientY + 15)
-            .loadTemplate('templates/long-term.tooltip.html', {
-                stateName: d.properties.name
-            });
-
-    }
-
-    else {// if (factorType.val() === 'long-term'){
-        tooltip
-            .css('left', d3.event.clientX + 15)
-            .css('top', d3.event.clientY + 15)
-            .loadTemplate('templates/short-term.tooltip.html', {
-                stateName: d.properties.name,
-                population: d.properties.population,
-                electoralVotes: d.properties.electoralVotes
-            });
-
-
-        tooltip.removeClass('hidden');
-    }
+    tooltip.removeClass('hidden');
 }
 
 /**
