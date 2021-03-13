@@ -159,6 +159,7 @@ var map = d3.select('#map'),
         .selectAll('path');
 var tooltip = $('#tooltip');
 
+
 // Prepare cartogram variables
 var proj = d3.geo.albersUsa();  // Map projection, scale and center will be defined later
 var topology,
@@ -168,25 +169,32 @@ var topology,
         .properties(function(d) {
 
             var stateName = d.properties.name;
+            console.log(d.properties);
 
             return {
                 name: stateName,
                 population: getPopulation(stateName),
                 electoralVotes: '',
             }
-
-            // return dataById[d.properties.name];
         });
 
+
+
+
+function sendDef(value){
+    return value;
+}
 
 function getPopulation(stateName){
 
     //TODO:  Parse the data and make it easily accessible by state ID
 
-    d3.json('./js/indexed_pres.json', function(d)
+    d3.json('./js/indexed_pres.json', function(data)
     {
-        console.log(d[stateName]);
-        return d[stateName];
+        value = data[stateName]['total_votes'];
+
+        // console.log(value);
+        // return data[stateName]['total_votes'];
     });
 
 }
@@ -222,7 +230,7 @@ function initMap() {
         .attr('d', path)
         .style('fill', () => colors[Math.floor(Math.random() *2) + 1]);
 
-    console.log(features[0].properties)
+    console.log(features[0].properties.name)
 
     states
         .on('mousemove', showTooltip)
