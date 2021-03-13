@@ -179,15 +179,16 @@ var topology,
         });
 
 // Read the geometry data
-d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json', function(topo) {
 
+    d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json', function(topo) {
     topology = topo;
     geometries = topology.objects.states.geometries;
 
+
     // TODO: Parse the data and make it easily accessible by state ID
-    // d3.json('/path/to/data', function(data) {
+        d3.json('/indexed_pres.json', function(data) {
     //
-    // });
+     });
 
     initMap()
 });
@@ -259,7 +260,9 @@ function showTooltip(d, id, factorType) {
             .css('left', d3.event.clientX + 15)
             .css('top', d3.event.clientY + 15)
             .loadTemplate('templates/short-term.tooltip.html', {
-                stateName: d.properties.name
+                stateName: d.properties.name,
+                population: d.properties.population,
+                electoralVotes: d.properties.electoralVotes
             });
 
 
