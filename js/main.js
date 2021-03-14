@@ -256,6 +256,36 @@ function showTooltip(d, id, data) {
                 electoralVotes: d.properties.electoralVotes,
             });
     }
+
+    else if (factorType.val() === 'short-term') {
+        tooltip
+            .css('left', d3.event.clientX + 15)
+            .css('top', d3.event.clientY + 15)
+            .loadTemplate('templates/short-term.tooltip.html', {
+
+                stateName: d.properties.name,
+
+            });
+
+    }
+
+    else if (factorType.val() === 'long-term') {
+        tooltip
+            .css('left', d3.event.clientX + 15)
+            .css('top', d3.event.clientY + 15)
+            .loadTemplate('templates/long-term.tooltip.html', {
+
+                stateName: d.properties.name,
+
+            });
+
+    }
+
+    else {
+
+    }
+
+
     tooltip.removeClass('hidden');
 }
 
@@ -268,3 +298,17 @@ function showTooltip(d, id, data) {
 function hideTooltip(d, id) {
     tooltip.addClass('hidden')
 }
+
+/*
+
+function zoomIn() {
+    var GFG = document.getElementById("body");
+    GFG.style.zoom = GFG.style.zoom + 10;
+}
+
+function zoomOut() {
+    var GFG = document.getElementById("body");
+    GFG.style.zoom = GFG.style.zoom - 1;
+}
+
+*/
