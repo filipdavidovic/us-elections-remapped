@@ -1,5 +1,7 @@
 // Constants
-let presidentialCandidates = {
+const electionYears = new Set(['2012', '2016', '2020']);
+
+const presidentialCandidates = {
     '2012': {
         'democrats': {
             'name': 'Barack Obama',
@@ -32,13 +34,19 @@ let presidentialCandidates = {
     }
 }
 
-// Select and configure elements related to pagination
-let storyline = $('#storyline');
-let shortTermRow = $('#short-term-row');
-let longTermRow = $('#long-term-row');
+const mapColors = {
+    ELECTION_RESULTS: 'election-results',
+};
 
-$('#year-selector').on('change', function() {
-    let selected = $('select option:selected').text();
+// Select and configure elements related to pagination
+let $yearSelector = $('#year-selector');
+let $storyline = $('#storyline');
+let $shortTermRow = $('#short-term-row');
+let $longTermRow = $('#long-term-row');
+let $electionResultsBar = $('#election-results-bar');
+
+$yearSelector.on('change', function() {
+    let selected = $('select option:selected').val();
 
     // Update profile images and related text
     $('#democrat-profile').attr('src', presidentialCandidates[selected].democrats.profile);
@@ -50,28 +58,31 @@ $('#year-selector').on('change', function() {
 
     $('#election-results-row').removeClass('hidden');
 
+    updateMapColors(mapColors.ELECTION_RESULTS);
+    updateElectionResultsIndicator();
+
     setContent();
 })
 
 $('#electoral-college-select').on('click', function() {
-    shortTermRow.addClass('hidden');
-    longTermRow.addClass('hidden');
+    $shortTermRow.addClass('hidden');
+    $longTermRow.addClass('hidden');
 
     resetContentChangers();
     setContent();
 });
 
 $('#long-term-select').on('click', function() {
-    shortTermRow.addClass('hidden');
-    longTermRow.removeClass('hidden');
+    $shortTermRow.addClass('hidden');
+    $longTermRow.removeClass('hidden');
 
     resetContentChangers();
     setContent();
 });
 
 $('#short-term-select').on('click', function() {
-    shortTermRow.removeClass('hidden');
-    longTermRow.addClass('hidden');
+    $shortTermRow.removeClass('hidden');
+    $longTermRow.addClass('hidden');
 
     resetContentChangers();
     setContent();
@@ -82,17 +93,17 @@ $('.content-changer').on('click', function() {
 });
 
 function setContent() {
-    let year = $('select option:selected').text();
+    let year = $('select option:selected').val();
     let factorType = $('#factor-selector label.active').find('input');
 
-    if (year === 'Choose election year') {
-        storyline.html('<h2 class="text-center">Select an election year from the dropdown.</h2>');
+    if (year === 'default') {
+        $storyline.html('<h2 class="text-center">Select an election year from the dropdown.</h2>');
     } else if (factorType.length === 0) {
-        storyline.html('<h2 class="text-center">Select a factor type from <span class="teal">teal</span> buttons on the top.</h2>');
+        $storyline.html('<h2 class="text-center">Select a factor type from <span class="teal">teal</span> buttons on the top.</h2>');
     } else if (factorType.val() === 'electoral-college') {
         let html = '<p>Electoral college BLA BLA BLA.</p>';
 
-        storyline.html(html);
+        $storyline.html(html);
 
         updateMap();
     } else if (factorType.val() === 'long-term') {
@@ -117,7 +128,7 @@ function setContent() {
             throw Error('Unexpected value for long term factor: ' + factor.val());
         }
 
-        storyline.html(html);
+        $storyline.html(html);
     } else if (factorType.val() === 'short-term') {
         let factor = $('#short-term-row label.active').find('input');
         let html;
@@ -136,7 +147,7 @@ function setContent() {
             throw Error('Unexpected value for short term factor: ' + factor.val());
         }
 
-        storyline.html(html);
+        $storyline.html(html);
     } else {
         throw Error('Unexpected value for factor type: ' + factorType.val());
     }
@@ -164,6 +175,7 @@ let tooltip = $('#tooltip');
 let topology,
     geometries,
     dataByState,
+    dataElectionResults,
     proj = d3.geo.albersUsa(),
     carto = d3.cartogram()
         .projection(proj)
@@ -186,9 +198,35 @@ d3.json('data/us.topojson', function(topo) {
             // Use only polygons for which we have the data
             .filter((poly) => poly.id in dataByState);
 
-        initMap();
+        for (let geo of geometries) {
+            if (geo.id === 'District of Columbia') {
+                alert('Got it!');
+            }
+        }
+
+        d3.json('data/election_results.json', function(electionResults) {
+            dataElectionResults = electionResults;
+
+            initMap();
+        });
     });
 });
+
+function updateElectionResultsIndicator() {
+    let year = $yearSelector.val();
+
+    if (!electionYears.has(year)) {
+        alert(`Unsupported election year selected (${year})`);
+        return;
+    }
+
+    $electionResultsBar.addClass(`e-${year}`);
+    for (let electionYear of electionYears) {
+        if (year !== electionYear) {
+            $electionResultsBar.removeClass(`e-${electionYear}`);
+        }
+    }
+}
 
 /**
  * Returns CSS classes for state polygons containing the fill color based on the state properties
@@ -207,6 +245,9 @@ function fillClass(d) {
     }
 }
 
+/**
+ * Initializes the map with no colors and warping.
+ */
 function initMap() {
     // Create the cartogram features
     let features = carto.features(topology, geometries);
@@ -217,13 +258,21 @@ function initMap() {
         .enter().append('path')
         .attr('id', (d) => d.properties.name)
         .attr('d', path)
-        .attr('class', fillClass);
+        .attr('class', 'state init');
 
     states
         .on('mousemove', showTooltip)
         .on('mouseout', hideTooltip);
 }
 
+function updateMapColors() {
+    states.attr('class', fillClass);
+}
+
+/**
+ * Update the map with colors and appropriate warping. Colors and warping values are chosen by reading the
+ * dropdowns and radio buttons.
+ */
 function updateMap() {
     let values = states.data()
         .map((d) => d.properties.electoralVotes)
@@ -245,8 +294,7 @@ function updateMap() {
     states.transition()
         .duration(750)
         .ease('linear')
-        .attr('d', carto.path)
-        .attr('class', fillClass);
+        .attr('d', carto.path);
 }
 
 /**

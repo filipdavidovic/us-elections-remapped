@@ -47,7 +47,7 @@ img.profile {
     font-size: 1.2em;
 }
 
-.election-results-bar {
+#election-results-bar {
     border-radius: 0.4rem;
     background-color: white;
     width: 100%;
@@ -88,17 +88,17 @@ img.profile {
     margin-top: 0.5em;
 }
 
-.election-results-win-indicator {
+#election-results-win-indicator {
     left: 50%;
     height: 2.3rem;
     width: 2px;
     position: absolute;
     background: black;
+    z-index: 1;
 }
 
-.election-results-bar::before {
+#election-results-bar::before {
     content: "";
-    width: 56%;
     height: 2.3rem;
     background-color: rgb(26, 106, 255);
     position: absolute;
@@ -108,9 +108,20 @@ img.profile {
     border-top-left-radius: 0.4rem;
 }
 
-.election-results-bar::after {
+#election-results-bar.e-2020::before {
+    width: 55%
+}
+
+#election-results-bar.e-2016::before {
+    width: 43%
+}
+
+#election-results-bar.e-2012::before {
+    width: 52%
+}
+
+#election-results-bar::after {
     content: "";
-    width: 44%;
     height: 2.3rem;
     background-color: rgb(255, 74, 67);
     position: absolute;
@@ -118,6 +129,18 @@ img.profile {
     right: 0;
     border-bottom-right-radius: 0.4rem;
     border-top-right-radius: 0.4rem;
+}
+
+#election-results-bar.e-2020::after {
+    width: 45%
+}
+
+#election-results-bar.e-2016::after {
+    width: 57%
+}
+
+#election-results-bar.e-2012::after {
+    width: 48%
 }
 
 #container {
@@ -138,6 +161,10 @@ img.profile {
 path.state {
     stroke: #555;
     stroke-width: 1.5;
+}
+
+path.state.init {
+    fill: #fafafa;
 }
 
 .hidden {

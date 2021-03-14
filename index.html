@@ -24,10 +24,10 @@
                     </div>
 
                     <select class="form-control" id="year-selector">
-                        <option disabled selected>Choose election year</option>
-                        <option>2012</option>
-                        <option>2016</option>
-                        <option>2020</option>
+                        <option value="default" disabled selected>Choose election year</option>
+                        <option value="2012">2012</option>
+                        <option value="2016">2016</option>
+                        <option value="2020">2020</option>
                     </select>
                 </div>
             </div>
@@ -57,12 +57,12 @@
 
                 <span class="fa fa-angle-down text-center" style="display: block"></span>
 
-                <div class="election-results-bar">
-                    <span class="election-results-win-indicator"></span>
+                <div id="election-results-bar">
+                    <span id="election-results-win-indicator"></span>
                 </div>
 
-                <div id="democrat-name" class="candidate-name" style="left: 0">Joe Biden</div>
-                <div id="republican-name" class="candidate-name" style="right: 0">Donald Trump</div>
+                <div id="democrat-name" class="candidate-name" style="left: 0"></div>
+                <div id="republican-name" class="candidate-name" style="right: 0"></div>
             </div>
 
             <div class="col-2">
