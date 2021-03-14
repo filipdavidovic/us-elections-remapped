@@ -33,6 +33,10 @@ h1.heading {
     text-align: center;
 }
 
+h6.heading {
+    font-size: 10px;
+}
+
 img.profile {
     display: block;
     margin: auto;

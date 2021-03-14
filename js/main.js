@@ -32,11 +32,13 @@ let presidentialCandidates = {
     }
 }
 
+
+
 // Select and configure elements related to pagination
 let storyline = $('#storyline');
 let shortTermRow = $('#short-term-row');
 let longTermRow = $('#long-term-row');
-let electionResultRowBefore = $('.election-results-row::before ');
+let electionResultRowBefore = $('#election-results-row::before');
 let electionResultRowAfter = $('.election-results-row::after ');
 
 $('#year-selector').on('change', function() {
@@ -50,8 +52,8 @@ $('#year-selector').on('change', function() {
 
     // TODO: Update results indicator using election data
 
-    electionResultRowBefore.css("width", "50%");
-    electionResultRowAfter.css("width", "50%");
+    console.log(electionResultRowBefore.css("width"));
+    //electionResultRowAfter.css("width", "0%");
 
     $('#election-results-row').removeClass('hidden');
 
@@ -91,6 +93,21 @@ $('.content-changer').on('click', function() {
 var template_electoralCollege = '<p class="fade-in" style="padding:20px"> The United States Electoral College is the group of presidential electors required by the Constitution to form every four years for the sole purpose of electing the president and vice president. Each state appoints electors according to its legislature, equal in number to its congressional delegation (senators and representatives). '+
     '<br> <br> Hover over each state and see details such as the number of electoral votes or the population. </p>';
 
+var template_longTerm_socialClass = '<p class="fade-in" style="padding:20px">If we sort Americans by formal educational levels, the partisan gaps are not as great. But if we focus on income, class makes more of a difference in how citizens vote now than it did fifty years ago – even with all the racial changes America has experienced. <br> <br> At a time when Americans are becoming steadily more educated, incomes are not increasing much for most people – and income gaps are growing. High earners look to Republicans, while Democrats are, more than ever, the party lower-income Americans want to represent their interests.\n' +
+    '\n  <br> <h6 class="fade-in" style="font-size:10px; padding:20px;"> sources: https://scholars.org/contribution/does-class-matter-when-americans-vote <br></p>';
+
+var template_longTerm_race = '<p class="fade-in" style="padding:20px">The demographic composition of an area does not tell the whole story. Patterns in voter registration and voter turnout vary widely by race and ethnicity, with White adults historically more likely to be registered to vote and to turn out to vote than other racial and ethnic groups. Additionally, every presidential election brings its own unique set of circumstances, from the personal characteristics of the candidates, to the economy, to historic events such as a global pandemic. Still, understanding the changing racial and ethnic composition in key states helps to provide clues for how political winds may shift over time.\n' +
+    '\n' +
+    ' <br> <br> Black, Hispanic and Asian registered voters historically lean Democratic\n' +
+    'The ways in which these demographic shifts might shape electoral outcomes are closely linked to the distinct partisan preferences of different racial and ethnic groups. Pew Research Center survey data spanning more than two decades shows that the Democratic Party maintains a wide and long-standing advantage among Black, Hispanic and Asian American registered voters. Among White voters, the partisan balance has been generally stable over the past decade, with the Republican Party holding a slight advantage.\n' +
+    '\n <br> <h6 class="fade-in" style="font-size:10px; padding:20px;"> sources: <br>  https://www.pewresearch.org/2020/09/23/the-changing-racial-and-ethnic-composition-of-the-u-s-electorate/ </p>';
+
+var template_longTerm_age = '<p class="fade-in" style="padding:20px"> They say elections are decided by those who show up to vote.\n' +
+    'Age is one of the strongest long term factors when it comes to election results. It appears that the young vote less than the old and that turnout climbs with each additional year of life, is one of the most robust findings in political science. <br> <br> There is a link between age and voting behaviour. As people age they are more likely to be at the top of their earnings so they are more likely to favour traditional Conservative policies such as lower taxation on higher earners, i.e the Republican party. In a 2017 general election in UK, 61% of voters nationally who were aged over 65-years old voted Conservative.\n' +
+    '\n' +
+    'Younger voters may be more concerned with issues such as greater support for education or youth unemployment. Those under 35-years of age tend not to vote for the Conservatives.\n' +
+    '\n <br> <h6 class="fade-in" style="font-size:10px; padding:20px;"> sources: <br> https://www.bbc.co.uk/bitesize/guides/zd9bd6f/revision/5 <br> https://medium.com/@PollsAndVotes/age-and-voter-turnout-52962b0884ef </h6> </p>';
+
 
 /** end of constants section **/
 
@@ -114,15 +131,13 @@ function setContent() {
         if (factor.length === 0) {
             html = '<h2 class="text-center">Select a long term factor from <span class="green">green</span> buttons.</h2>';
         } else if (factor.val() === 'social-class') {
-            html = '<p>Social class BLA BLA BLA.</p>';
+            html = template_longTerm_socialClass;
 
-            // TODO: Update the map
         } else if (factor.val() === 'race') {
-            html = '<p>Race BLA BLA BLA.</p>';
+            html = template_longTerm_race;
 
-            // TODO: Update the map
         } else if (factor.val() === 'age') {
-            html = '<p>Age BLA BLA BLA.</p>';
+            html = template_longTerm_age;
 
             // TODO: Update the map
         } else {
