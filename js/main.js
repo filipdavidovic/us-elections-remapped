@@ -81,6 +81,13 @@ $('.content-changer').on('click', function() {
     setContent();
 });
 
+/** set up static HTML messages to be displayed here **/
+
+var template_myString = '<p> Hello World </p>';
+
+
+/** end of constants section **/
+
 function setContent() {
     let year = $('select option:selected').text();
     let factorType = $('#factor-selector label.active').find('input');
@@ -90,9 +97,8 @@ function setContent() {
     } else if (factorType.length === 0) {
         storyline.html('<h2 class="text-center">Select a factor type from <span class="teal">teal</span> buttons on the top.</h2>');
     } else if (factorType.val() === 'electoral-college') {
-        let html = '<p>Electoral college BLA BLA BLA.</p>';
 
-        storyline.html(html);
+        storyline.html(template_myString);
 
         // TODO: Update the map
     } else if (factorType.val() === 'long-term') {
@@ -281,7 +287,16 @@ function showTooltip(d, id, data) {
 
     }
 
-    else {
+    else {  // context not set, display only state name
+        tooltip
+            .css('left', d3.event.clientX + 15)
+            .css('top', d3.event.clientY + 15)
+            .loadTemplate('templates/context_unset.tooltip.html', {
+
+                stateName: d.properties.name,
+
+            });
+
 
     }
 
