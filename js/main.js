@@ -64,6 +64,14 @@ $yearSelector.on('change', function() {
     setContent();
 })
 
+$('#plain-map-select').on('click', function() {
+    $shortTermRow.addClass('hidden');
+    $longTermRow.addClass('hidden');
+
+    resetContentChangers();
+    setContent();
+});
+
 $('#electoral-college-select').on('click', function() {
     $shortTermRow.addClass('hidden');
     $longTermRow.addClass('hidden');
@@ -100,6 +108,13 @@ function setContent() {
         $storyline.html('<h2 class="text-center">Select an election year from the dropdown.</h2>');
     } else if (factorType.length === 0) {
         $storyline.html('<h2 class="text-center">Select a factor type from <span class="teal">teal</span> buttons on the top.</h2>');
+    } else if (factorType.val() === 'plain-map') {
+        let html = '<p>Plain map BLA BLA BLA.</p>';
+
+        $storyline.html(html);
+
+        resetMap();
+        updateMapColors(mapColors.ELECTION_RESULTS);
     } else if (factorType.val() === 'electoral-college') {
         let html = '<p>Electoral college BLA BLA BLA.</p>';
 
@@ -162,10 +177,9 @@ function resetContentChangers() {
 
 // Select the elements needed for the map, and set their children and attributes
 let map = d3.select('#map'),
-    layer = map.append('g')
+    $layer = map.append('g')
         .attr('id', 'layer'),
-    // .attr('transform', 'translate(' + [-38, 32] + ')' + 'scale(' + 0.94 + ')'),
-    states = layer.append('g')
+    states = $layer.append('g')
         .attr('id', 'states')
         .selectAll('path');
 let tooltip = $('#tooltip');
@@ -175,7 +189,6 @@ let tooltip = $('#tooltip');
 let topology,
     geometries,
     dataByState,
-    dataElectionResults,
     proj = d3.geo.albersUsa(),
     carto = d3.cartogram()
         .projection(proj)
@@ -185,12 +198,26 @@ let topology,
             return {
                 name: stateName,
                 winnerParty: dataByState[stateName]['winner_party'],
+                electionResults: {
+                    '2012': {
+                        winnerParty: dataByState[stateName]['election_results']['2012']['winner_party'],
+                        winnerPercentage: dataByState[stateName]['election_results']['2012']['winner_percentage'],
+                    },
+                    '2016': {
+                        winnerParty: dataByState[stateName]['election_results']['2016']['winner_party'],
+                        winnerPercentage: dataByState[stateName]['election_results']['2016']['winner_percentage'],
+                    },
+                    '2020': {
+                        winnerParty: dataByState[stateName]['election_results']['2020']['winner_party'],
+                        winnerPercentage: dataByState[stateName]['election_results']['2020']['winner_percentage'],
+                    },
+                },
                 electoralVotes: dataByState[stateName]['electoral_college_votes'],
             };
         });
 
 d3.json('data/us.topojson', function(topo) {
-    d3.json('data/indexed_pres.json', function(data) {
+    d3.json('data/elections.json', function(data) {
         dataByState = data;
 
         topology = topo;
@@ -198,17 +225,7 @@ d3.json('data/us.topojson', function(topo) {
             // Use only polygons for which we have the data
             .filter((poly) => poly.id in dataByState);
 
-        for (let geo of geometries) {
-            if (geo.id === 'District of Columbia') {
-                alert('Got it!');
-            }
-        }
-
-        d3.json('data/election_results.json', function(electionResults) {
-            dataElectionResults = electionResults;
-
-            initMap();
-        });
+        initMap();
     });
 });
 
@@ -236,13 +253,21 @@ function updateElectionResultsIndicator() {
  * @throws Error - if unrecognized properties are encountered
  */
 function fillClass(d) {
-    if (d.properties.winnerParty === 'DEM') {
+    let year = $yearSelector.val();
+    if (d.properties.electionResults[year].winnerParty === 'DEM') {
         return 'state democrat-f';
-    } else if (d.properties.winnerParty === 'REP') {
+    } else if (d.properties.electionResults[year].winnerParty) {
         return 'state republican-f'
     } else {
         throw Error(`Unrecognized winner party "${d.properties.winnerParty}"`)
     }
+}
+
+function clearMap() {
+    $('#states').remove();
+    states = $layer.append('g')
+        .attr('id', 'states')
+        .selectAll('path');
 }
 
 /**
@@ -284,9 +309,19 @@ function updateMap() {
     let scale = d3.scale.linear()
         .domain([lo, hi])
         .range([1, 1000]);
-    carto.value((d) => {
-        return scale(d.properties.electoralVotes);
-    });
+    carto.value((d) => scale(d.properties.electoralVotes));
+
+    let features = carto(topology, geometries).features;
+
+    states.data(features);
+    states.transition()
+        .duration(750)
+        .ease('linear')
+        .attr('d', carto.path);
+}
+
+function resetMap() {
+    carto.value((d) => 1);
 
     let features = carto(topology, geometries).features;
 
