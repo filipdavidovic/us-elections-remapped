@@ -36,6 +36,8 @@ let presidentialCandidates = {
 let storyline = $('#storyline');
 let shortTermRow = $('#short-term-row');
 let longTermRow = $('#long-term-row');
+let electionResultRowBefore = $('.election-results-row::before ');
+let electionResultRowAfter = $('.election-results-row::after ');
 
 $('#year-selector').on('change', function() {
     let selected = $('select option:selected').text();
@@ -47,6 +49,9 @@ $('#year-selector').on('change', function() {
     $('#republican-name').text(presidentialCandidates[selected].republicans.name);
 
     // TODO: Update results indicator using election data
+
+    electionResultRowBefore.css("width", "50%");
+    electionResultRowAfter.css("width", "50%");
 
     $('#election-results-row').removeClass('hidden');
 
@@ -83,7 +88,8 @@ $('.content-changer').on('click', function() {
 
 /** set up static HTML messages to be displayed here **/
 
-var template_electoralCollege = '<p style="padding:20px"> The United States Electoral College is the group of presidential electors required by the Constitution to form every four years for the sole purpose of electing the president and vice president. Each state appoints electors according to its legislature, equal in number to its congressional delegation (senators and representatives). </p>';
+var template_electoralCollege = '<p class="fade-in" style="padding:20px"> The United States Electoral College is the group of presidential electors required by the Constitution to form every four years for the sole purpose of electing the president and vice president. Each state appoints electors according to its legislature, equal in number to its congressional delegation (senators and representatives). '+
+    '<br> <br> Hover over each state and see details such as the number of electoral votes or the population. </p>';
 
 
 /** end of constants section **/
