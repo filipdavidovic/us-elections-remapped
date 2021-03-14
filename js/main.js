@@ -174,6 +174,7 @@ let topology,
                 return {
                     name: stateName,
                     winnerParty: dataByState[stateName]['winner_party'],
+                    population: dataByState[stateName]['total_votes'],
                     electoralVotes: dataByState[stateName]['electoral_college_votes'],
                 };
             } else {
@@ -254,7 +255,7 @@ function showTooltip(d, id, data) {
 
                 stateName: d.properties.name,
                 population: d.properties.population,
-                electoralVotes: 'waiting for value...'
+                electoralVotes: d.properties.electoralVotes,
             });
     }
     tooltip.removeClass('hidden');
