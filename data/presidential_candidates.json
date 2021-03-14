@@ -1,0 +1,38 @@
+{
+  "2012": {
+    "democrats": {
+      "name": "Barack Obama",
+      "profile": "https://images-na.ssl-images-amazon.com/images/I/51NuSfifT-L._AC_.jpg",
+      "votes": 332
+    },
+    "republicans": {
+      "name": "Mitt Romney",
+      "profile": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Mitt_Romney_Circle.png",
+      "votes": 206
+    }
+  },
+  "2016": {
+    "democrats": {
+      "name": "Hillary Clinton",
+      "profile": "https://pngimg.com/uploads/hillary_clinton/hillary_clinton_PNG26.png",
+      "votes": 232
+    },
+    "republicans": {
+      "name": "Donald Trump",
+      "profile": "https://paaia.org/wp-content/uploads/2020/02/Donald-Trump-circle-1024x1024.png",
+      "votes": 306
+    }
+  },
+  "2020": {
+    "democrats": {
+      "name": "Joe Biden",
+      "profile": "https://upload.wikimedia.org/wikipedia/commons/2/26/Biden_Circle.png",
+      "votes": 306
+    },
+    "republicans": {
+      "name": "Donald Trump",
+      "profile": "https://paaia.org/wp-content/uploads/2020/02/Donald-Trump-circle-1024x1024.png",
+      "votes": 232
+    }
+  }
+}

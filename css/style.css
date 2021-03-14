@@ -59,6 +59,12 @@ img.profile {
     height: 2.3rem;
 }
 
+.election-results-bar-vote-counter {
+    top: 64%;
+    position: absolute;
+    z-index: 1;
+}
+
 .democrat {
     color: rgb(26, 106, 255);
 }
@@ -114,7 +120,7 @@ img.profile {
 }
 
 #election-results-bar.e-2020::before {
-    width: 55%
+    width: 57%
 }
 
 #election-results-bar.e-2016::before {
@@ -122,7 +128,7 @@ img.profile {
 }
 
 #election-results-bar.e-2012::before {
-    width: 52%
+    width: 62%
 }
 
 #election-results-bar::after {
@@ -137,7 +143,7 @@ img.profile {
 }
 
 #election-results-bar.e-2020::after {
-    width: 45%
+    width: 43%
 }
 
 #election-results-bar.e-2016::after {
@@ -145,7 +151,7 @@ img.profile {
 }
 
 #election-results-bar.e-2012::after {
-    width: 48%
+    width: 38%
 }
 
 #container {
@@ -185,12 +191,25 @@ path.state.init {
     padding: .5em;
 }
 
+.zoom {
+    width: 3.8em;
+    position: absolute;
+    top: 33vw;
+    right: 4vw;
+}
+
+.zoom .zoom-btn {
+    padding: 0.3em;
+    border: 0.15em solid #555;
+    color: #555;
+}
+
 .fade-in {
-    animation: fadeIn ease 10s;
-    -webkit-animation: fadeIn ease 10s;
-    -moz-animation: fadeIn ease 10s;
-    -o-animation: fadeIn ease 10s;
-    -ms-animation: fadeIn ease 10s;
+    animation: fadeIn ease 0.75s;
+    -webkit-animation: fadeIn ease 0.75s;
+    -moz-animation: fadeIn ease 0.75s;
+    -o-animation: fadeIn ease 0.75s;
+    -ms-animation: fadeIn ease 0.75s;
 }
 @keyframes fadeIn {
     0% {opacity:0;}
