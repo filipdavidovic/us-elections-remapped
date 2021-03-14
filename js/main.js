@@ -113,7 +113,7 @@ function setContent() {
 
         $storyline.html(html);
 
-        resetMap();
+        initMap();
         updateMapColors(mapColors.ELECTION_RESULTS);
     } else if (factorType.val() === 'electoral-college') {
         let html = '<p>Electoral college BLA BLA BLA.</p>';
@@ -274,6 +274,8 @@ function clearMap() {
  * Initializes the map with no colors and warping.
  */
 function initMap() {
+    clearMap();
+
     // Create the cartogram features
     let features = carto.features(topology, geometries);
     let path = d3.geo.path().projection(proj);
@@ -310,18 +312,6 @@ function updateMap() {
         .domain([lo, hi])
         .range([1, 1000]);
     carto.value((d) => scale(d.properties.electoralVotes));
-
-    let features = carto(topology, geometries).features;
-
-    states.data(features);
-    states.transition()
-        .duration(750)
-        .ease('linear')
-        .attr('d', carto.path);
-}
-
-function resetMap() {
-    carto.value((d) => 1);
 
     let features = carto(topology, geometries).features;
 
