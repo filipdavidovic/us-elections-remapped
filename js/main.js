@@ -94,7 +94,7 @@ function setContent() {
 
         storyline.html(html);
 
-        // TODO: Update the map
+        updateMap();
     } else if (factorType.val() === 'long-term') {
         let factor = $('#long-term-row label.active').find('input');
         let html;
@@ -160,51 +160,54 @@ let map = d3.select('#map'),
 let tooltip = $('#tooltip');
 
 
-// Prepare cartogram letiables
-let proj = d3.geo.albersUsa();  // Map projection, scale and center will be defined later
+// Prepare cartogram variables
 let topology,
     geometries,
     dataByState,
+    proj = d3.geo.albersUsa(),
     carto = d3.cartogram()
         .projection(proj)
         .properties(function(d) {
-            let stateName = d.properties.name;
+            let stateName = d.id;
 
-            if (stateName in dataByState) {
-                return {
-                    name: stateName,
-                    winnerParty: dataByState[stateName]['winner_party'],
-                    electoralVotes: dataByState[stateName]['electoral_college_votes'],
-                };
-            } else {
-                return {
-                    excluded: true,
-                }
-            }
+            return {
+                name: stateName,
+                winnerParty: dataByState[stateName]['winner_party'],
+                electoralVotes: dataByState[stateName]['electoral_college_votes'],
+            };
         });
 
-d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json', function(topo) {
-
-    topology = topo;
-    geometries = topology.objects.states.geometries;
-
-    d3.json('data/indexed_pres.json', function(data)
-    {
+d3.json('data/us.topojson', function(topo) {
+    d3.json('data/indexed_pres.json', function(data) {
         dataByState = data;
+
+        topology = topo;
+        geometries = topology.objects.states.geometries
+            // Use only polygons for which we have the data
+            .filter((poly) => poly.id in dataByState);
 
         initMap();
     });
 });
 
+/**
+ * Returns CSS classes for state polygons containing the fill color based on the state properties
+ *
+ * @param d - Polygon
+ * @return {String} - Classes
+ * @throws Error - if unrecognized properties are encountered
+ */
+function fillClass(d) {
+    if (d.properties.winnerParty === 'DEM') {
+        return 'state democrat-f';
+    } else if (d.properties.winnerParty === 'REP') {
+        return 'state republican-f'
+    } else {
+        throw Error(`Unrecognized winner party "${d.properties.winnerParty}"`)
+    }
+}
 
 function initMap() {
-
-    // Deform cartogram according to the data
-    // let scale = d3.scale.linear()
-    //     .domain([1, 14])
-    //     .range([1, 1000]);
-    // carto.value((d) => scale(getValue(d.properties.name)));
-
     // Create the cartogram features
     let features = carto.features(topology, geometries);
     let path = d3.geo.path().projection(proj);
@@ -212,22 +215,38 @@ function initMap() {
     // Put the features on the map
     states = states.data(features)
         .enter().append('path')
-        .filter((d) => 'name' in d.properties)
         .attr('id', (d) => d.properties.name)
         .attr('d', path)
-        .attr('class', function(d) {
-            if (d.properties.winnerParty === 'DEM') {
-                return 'state democrat-f';
-            } else if (d.properties.winnerParty === 'REP') {
-                return 'state republican-f'
-            } else {
-                throw Error(`Unrecognized winner party "${d.properties.winnerParty}"`)
-            }
-        });
+        .attr('class', fillClass);
 
     states
         .on('mousemove', showTooltip)
         .on('mouseout', hideTooltip);
+}
+
+function updateMap() {
+    let values = states.data()
+        .map((d) => d.properties.electoralVotes)
+        .filter((n) => !isNaN(n))
+        .sort(d3.ascending)
+    let lo = values[0];
+    let hi = values[values.length - 1];
+
+    let scale = d3.scale.linear()
+        .domain([lo, hi])
+        .range([1, 1000]);
+    carto.value((d) => {
+        return scale(d.properties.electoralVotes);
+    });
+
+    let features = carto(topology, geometries).features;
+
+    states.data(features);
+    states.transition()
+        .duration(750)
+        .ease('linear')
+        .attr('d', carto.path)
+        .attr('class', fillClass);
 }
 
 /**
@@ -238,25 +257,18 @@ function initMap() {
  * @param data
  */
 function showTooltip(d, id, data) {
+    tooltip
+        .css('left', d3.event.clientX + 15)
+        .css('top', d3.event.clientY + 15)
+        .loadTemplate('templates/electoral_college.tooltip.html', {
 
+            // set those according to what you want to see with the tooltip.
+            // let us first implement the electoral_college case
 
-    //get context (i.e electoral college)
+            stateName: d.properties.name,
+            electoralVotes: d.properties.electoralVotes
+        });
 
-
-    if (true) {
-        tooltip
-            .css('left', d3.event.clientX + 15)
-            .css('top', d3.event.clientY + 15)
-            .loadTemplate('templates/electoral_college.tooltip.html', {
-
-                // set those according to what you want to see with the tooltip.
-                // let us first implement the electoral_college case
-
-                stateName: d.properties.name,
-                population: d.properties.population,
-                electoralVotes: 'waiting for value...'
-            });
-    }
     tooltip.removeClass('hidden');
 }
 
