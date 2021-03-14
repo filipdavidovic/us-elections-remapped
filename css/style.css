@@ -4,6 +4,7 @@ body {
     line-height: 1.4em;
     padding: 0;
     margin: auto;
+    zoom: 100%;
 }
 
 #nav-container {
@@ -30,6 +31,10 @@ h1.heading {
 
 .text-center {
     text-align: center;
+}
+
+h6.heading {
+    font-size: 10px;
 }
 
 img.profile {
@@ -178,4 +183,36 @@ path.state.init {
     color: white;
     display: inline-block;
     padding: .5em;
+}
+
+.fade-in {
+    animation: fadeIn ease 10s;
+    -webkit-animation: fadeIn ease 10s;
+    -moz-animation: fadeIn ease 10s;
+    -o-animation: fadeIn ease 10s;
+    -ms-animation: fadeIn ease 10s;
+}
+@keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
+}
+
+@-moz-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
+}
+
+@-webkit-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
+}
+
+@-o-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
+}
+
+@-ms-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
 }

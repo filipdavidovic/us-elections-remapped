@@ -1,5 +1,5 @@
 // Constants
-const electionYears = new Set(['2012', '2016', '2020']);
+const electionYears = ['2012', '2016', '2020'];
 
 const presidentialCandidates = {
     '2012': {
@@ -100,6 +100,29 @@ $('.content-changer').on('click', function() {
     setContent();
 });
 
+/** set up static HTML messages to be displayed here **/
+
+var template_electoralCollege = '<p class="fade-in" style="padding:20px"> The United States Electoral College is the group of presidential electors required by the Constitution to form every four years for the sole purpose of electing the president and vice president. Each state appoints electors according to its legislature, equal in number to its congressional delegation (senators and representatives). '+
+    '<br> <br> Hover over each state and see details such as the number of electoral votes or the population. </p>';
+
+var template_longTerm_socialClass = '<p class="fade-in" style="padding:20px">If we sort Americans by formal educational levels, the partisan gaps are not as great. But if we focus on income, class makes more of a difference in how citizens vote now than it did fifty years ago – even with all the racial changes America has experienced. <br> <br> At a time when Americans are becoming steadily more educated, incomes are not increasing much for most people – and income gaps are growing. High earners look to Republicans, while Democrats are, more than ever, the party lower-income Americans want to represent their interests.\n' +
+    '\n  <br> <h6 class="fade-in" style="font-size:10px; padding:20px;"> sources: https://scholars.org/contribution/does-class-matter-when-americans-vote <br></p>';
+
+var template_longTerm_race = '<p class="fade-in" style="padding:20px">The demographic composition of an area does not tell the whole story. Patterns in voter registration and voter turnout vary widely by race and ethnicity, with White adults historically more likely to be registered to vote and to turn out to vote than other racial and ethnic groups. Additionally, every presidential election brings its own unique set of circumstances, from the personal characteristics of the candidates, to the economy, to historic events such as a global pandemic. Still, understanding the changing racial and ethnic composition in key states helps to provide clues for how political winds may shift over time.\n' +
+    '\n' +
+    ' <br> <br> Black, Hispanic and Asian registered voters historically lean Democratic\n' +
+    'The ways in which these demographic shifts might shape electoral outcomes are closely linked to the distinct partisan preferences of different racial and ethnic groups. Pew Research Center survey data spanning more than two decades shows that the Democratic Party maintains a wide and long-standing advantage among Black, Hispanic and Asian American registered voters. Among White voters, the partisan balance has been generally stable over the past decade, with the Republican Party holding a slight advantage.\n' +
+    '\n <br> <h6 class="fade-in" style="font-size:10px; padding:20px;"> sources: <br>  https://www.pewresearch.org/2020/09/23/the-changing-racial-and-ethnic-composition-of-the-u-s-electorate/ </p>';
+
+var template_longTerm_age = '<p class="fade-in" style="padding:20px"> They say elections are decided by those who show up to vote.\n' +
+    'Age is one of the strongest long term factors when it comes to election results. It appears that the young vote less than the old and that turnout climbs with each additional year of life, is one of the most robust findings in political science. <br> <br> There is a link between age and voting behaviour. As people age they are more likely to be at the top of their earnings so they are more likely to favour traditional Conservative policies such as lower taxation on higher earners, i.e the Republican party. In a 2017 general election in UK, 61% of voters nationally who were aged over 65-years old voted Conservative.\n' +
+    '\n' +
+    'Younger voters may be more concerned with issues such as greater support for education or youth unemployment. Those under 35-years of age tend not to vote for the Conservatives.\n' +
+    '\n <br> <h6 class="fade-in" style="font-size:10px; padding:20px;"> sources: <br> https://www.bbc.co.uk/bitesize/guides/zd9bd6f/revision/5 <br> https://medium.com/@PollsAndVotes/age-and-voter-turnout-52962b0884ef </h6> </p>';
+
+
+/** end of constants section **/
+
 function setContent() {
     let year = $('select option:selected').val();
     let factorType = $('#factor-selector label.active').find('input');
@@ -116,9 +139,7 @@ function setContent() {
         initMap();
         updateMapColors(mapColors.ELECTION_RESULTS);
     } else if (factorType.val() === 'electoral-college') {
-        let html = '<p>Electoral college BLA BLA BLA.</p>';
-
-        $storyline.html(html);
+        $storyline.html(template_electoralCollege);
 
         updateMap();
     } else if (factorType.val() === 'long-term') {
@@ -128,15 +149,15 @@ function setContent() {
         if (factor.length === 0) {
             html = '<h2 class="text-center">Select a long term factor from <span class="green">green</span> buttons.</h2>';
         } else if (factor.val() === 'social-class') {
-            html = '<p>Social class BLA BLA BLA.</p>';
+            html = template_longTerm_socialClass;
 
             // TODO: Update the map
         } else if (factor.val() === 'race') {
-            html = '<p>Race BLA BLA BLA.</p>';
+            html = template_longTerm_race;
 
             // TODO: Update the map
         } else if (factor.val() === 'age') {
-            html = '<p>Age BLA BLA BLA.</p>';
+            html = template_longTerm_age;
 
             // TODO: Update the map
         } else {
@@ -232,7 +253,7 @@ d3.json('data/us.topojson', function(topo) {
 function updateElectionResultsIndicator() {
     let year = $yearSelector.val();
 
-    if (!electionYears.has(year)) {
+    if (!electionYears.includes(year)) {
         alert(`Unsupported election year selected (${year})`);
         return;
     }
@@ -330,17 +351,61 @@ function updateMap() {
  * @param data
  */
 function showTooltip(d, id, data) {
-    tooltip
-        .css('left', d3.event.clientX + 15)
-        .css('top', d3.event.clientY + 15)
-        .loadTemplate('templates/electoral_college.tooltip.html', {
 
-            // set those according to what you want to see with the tooltip.
-            // let us first implement the electoral_college case
+    let factorType = $('#factor-selector label.active').find('input');
 
-            stateName: d.properties.name,
-            electoralVotes: d.properties.electoralVotes
-        });
+    if (factorType.val() === 'electoral-college') {
+        tooltip
+            .css('left', d3.event.clientX + 15)
+            .css('top', d3.event.clientY + 15)
+            .loadTemplate('templates/electoral_college.tooltip.html', {
+
+                // set those according to what you want to see with the tooltip.
+                // let us first implement the electoral_college case
+
+                stateName: d.properties.name,
+                population: d.properties.population,
+                electoralVotes: d.properties.electoralVotes,
+            });
+    }
+
+    else if (factorType.val() === 'short-term') {
+        tooltip
+            .css('left', d3.event.clientX + 15)
+            .css('top', d3.event.clientY + 15)
+            .loadTemplate('templates/short-term.tooltip.html', {
+
+                stateName: d.properties.name,
+
+            });
+
+    }
+
+    else if (factorType.val() === 'long-term') {
+        tooltip
+            .css('left', d3.event.clientX + 15)
+            .css('top', d3.event.clientY + 15)
+            .loadTemplate('templates/long-term.tooltip.html', {
+
+                stateName: d.properties.name,
+
+            });
+
+    }
+
+    else {  // context not set, display only state name
+        tooltip
+            .css('left', d3.event.clientX + 15)
+            .css('top', d3.event.clientY + 15)
+            .loadTemplate('templates/context_unset.tooltip.html', {
+
+                stateName: d.properties.name,
+
+            });
+
+
+    }
+
 
     tooltip.removeClass('hidden');
 }
@@ -354,3 +419,17 @@ function showTooltip(d, id, data) {
 function hideTooltip(d, id) {
     tooltip.addClass('hidden')
 }
+
+/*
+
+function zoomIn() {
+    var GFG = document.getElementById("body");
+    GFG.style.zoom = GFG.style.zoom + 10;
+}
+
+function zoomOut() {
+    var GFG = document.getElementById("body");
+    GFG.style.zoom = GFG.style.zoom - 1;
+}
+
+*/
