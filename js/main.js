@@ -240,11 +240,9 @@ function initMap() {
  */
 function showTooltip(d, id, data) {
 
+    let factorType = $('#factor-selector label.active').find('input');
 
-    //get context (i.e electoral college)
-
-
-    if (true) {
+    if (factorType.val() === 'electoral-college') {
         tooltip
             .css('left', d3.event.clientX + 15)
             .css('top', d3.event.clientY + 15)
