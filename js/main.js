@@ -83,7 +83,7 @@ $('.content-changer').on('click', function() {
 
 /** set up static HTML messages to be displayed here **/
 
-var template_myString = '<p> Hello World </p>';
+var template_electoralCollege = '<p style="padding:20px"> The United States Electoral College is the group of presidential electors required by the Constitution to form every four years for the sole purpose of electing the president and vice president. Each state appoints electors according to its legislature, equal in number to its congressional delegation (senators and representatives). </p>';
 
 
 /** end of constants section **/
@@ -98,7 +98,7 @@ function setContent() {
         storyline.html('<h2 class="text-center">Select a factor type from <span class="teal">teal</span> buttons on the top.</h2>');
     } else if (factorType.val() === 'electoral-college') {
 
-        storyline.html(template_myString);
+        storyline.html(template_electoralCollege);
 
         // TODO: Update the map
     } else if (factorType.val() === 'long-term') {
