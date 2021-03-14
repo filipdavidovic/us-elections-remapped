@@ -64,7 +64,7 @@ $yearSelector.on('change', function() {
     setContent();
 })
 
-$('#plain-map-select').on('click', function() {
+$('#normal-map-select').on('click', function() {
     $shortTermRow.addClass('hidden');
     $longTermRow.addClass('hidden');
 
@@ -108,8 +108,8 @@ function setContent() {
         $storyline.html('<h2 class="text-center">Select an election year from the dropdown.</h2>');
     } else if (factorType.length === 0) {
         $storyline.html('<h2 class="text-center">Select a factor type from <span class="teal">teal</span> buttons on the top.</h2>');
-    } else if (factorType.val() === 'plain-map') {
-        let html = '<p>Plain map BLA BLA BLA.</p>';
+    } else if (factorType.val() === 'normal-map') {
+        let html = '<p>Normal map BLA BLA BLA.</p>';
 
         $storyline.html(html);
 
