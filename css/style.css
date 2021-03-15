@@ -126,6 +126,9 @@ img.profile {
     left: 0;
     border-bottom-left-radius: 0.4rem;
     border-top-left-radius: 0.4rem;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    border-left: 1px solid black;
 }
 
 #election-results-bar.e-2020::before {
@@ -149,6 +152,9 @@ img.profile {
     right: 0;
     border-bottom-right-radius: 0.4rem;
     border-top-right-radius: 0.4rem;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    border-right: 1px solid black;
 }
 
 #election-results-bar.e-2020::after {

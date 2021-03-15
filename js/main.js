@@ -227,6 +227,47 @@ let topology,
             };
         });
 
+/**
+ * Downloads a single image given a URL
+ *
+ * @param url - URL of the image
+ * @param list - List to which images are added and removed once loaded
+ */
+function preloadImg(url, list) {
+    let img = new Image();
+
+    img.onload = function() {
+        let index = list.indexOf(this);
+
+        if (index !== -1) {
+            list.splice(index, 1);  // Remove image from the array once it's loaded for memory consumption reasons
+        }
+    };
+
+    img.src = url;
+    list.push(img);
+}
+
+/**
+ * Downloads all content for the application so there is no wait time.
+ */
+function preloadContent() {
+    if (!preloadContent.list) {
+        preloadContent.list = [];
+    }
+
+    let list = preloadContent.list;
+
+    for (let stateName of Object.keys(dataByState)) {
+        preloadImg(`https://www.states101.com/img/flags/svg/${stateName.replace(/\s/g, '-').toLowerCase()}.svg`, list);
+    }
+
+    for (let year of Object.keys(presidentialCandidates)) {
+        preloadImg(presidentialCandidates[year]['democrats']['profile'], list);
+        preloadImg(presidentialCandidates[year]['republicans']['profile'], list);
+    }
+}
+
 d3.json('data/usa.topojson', function(topo) {
     d3.json('data/by_state.json', function(data) {
         dataByState = data;
@@ -238,6 +279,8 @@ d3.json('data/usa.topojson', function(topo) {
 
         d3.json('data/presidential_candidates.json', function(candidateData) {
             presidentialCandidates = candidateData;
+
+            preloadContent();  // Preload content so there is no wait time
 
             initMap();
         });
@@ -483,6 +526,7 @@ function showTooltip(d, id, data) {
                 stateName: d.properties.name,
                 electoralVotes: d.properties.electoralVotes,
                 population: numberFormat.format(d.properties.totalPopulation),
+                flagImg: `https://www.states101.com/img/flags/svg/${d.properties.name.replace(/\s/g, '-').toLowerCase()}.svg`
             });
     }
 
