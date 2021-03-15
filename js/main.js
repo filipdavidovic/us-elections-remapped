@@ -315,28 +315,13 @@ function clearMap() {
 }
 
 /**
- * Initializes the map with no colors and warping.
+ * Create an SVG linearGradient in the defs child of the given SVG.
+ * https://stackoverflow.com/questions/10894377/dynamically-adding-a-svg-gradient/10894745
+ *
+ * @param svg - SVG element where the linear gradient will be added
+ * @param id - ID of the linear gradient that will be created
+ * @param stops - Array of objects representing the attributes of stop elements that will be created
  */
-function initMap() {
-    clearMap();
-
-    // Create the cartogram features
-    let features = carto.features(topology, geometries);
-    let path = d3.geo.path().projection(proj);
-
-    // Put the features on the map
-    states = states.data(features)
-        .enter().append('path')
-        .attr('id', (d) => d.properties.name)
-        .attr('d', path)
-        .attr('class', 'state')
-        .attr('fill', '#fafafa');
-
-    states
-        .on('mousemove', showTooltip)
-        .on('mouseout', hideTooltip);
-}
-
 function createSvgGradient(svg, id, stops) {
     let svgNS = svg.namespaceURI;
     let grad  = document.createElementNS(svgNS, 'linearGradient');
@@ -426,16 +411,16 @@ function updateMapColors(palette) {
 /**
  * Get object property given a string path.
  * https://stackoverflow.com/questions/6491463/accessing-nested-javascript-objects-and-arrays-by-string-path?page=1&tab=votes
- * @param o
- * @param s
- * @return {*}
+ *
+ * @param o {Object} - Object to fetch the property from
+ * @param s {String} - String path to the appropriate property, e.g. properties.electoralVotes for object.properties.electoralVotes
  */
 Object.byString = function(o, s) {
     s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
     s = s.replace(/^\./, '');           // strip a leading dot
     let a = s.split('.');
     for (let i = 0, n = a.length; i < n; ++i) {
-        var k = a[i];
+        let k = a[i];
         if (k in o) {
             o = o[k];
         } else {
@@ -443,6 +428,29 @@ Object.byString = function(o, s) {
         }
     }
     return o;
+}
+
+/**
+ * Initializes the map with no colors and warping.
+ */
+function initMap() {
+    clearMap();
+
+    // Create the cartogram features
+    let features = carto.features(topology, geometries);
+    let path = d3.geo.path().projection(proj);
+
+    // Put the features on the map
+    states = states.data(features)
+        .enter().append('path')
+        .attr('id', (d) => d.properties.name)
+        .attr('d', path)
+        .attr('class', 'state')
+        .attr('fill', '#fafafa');
+
+    states
+        .on('mousemove', showTooltip)
+        .on('mouseout', hideTooltip);
 }
 
 /**
@@ -457,6 +465,7 @@ function updateMap(programState) {
     } else if (programState === programStates.SHORT_TERM.VOTER_TURNOUT) {
         let year = $yearSelector.val();
 
+        // TODO: Remove this check once voter turnout data is added for other years
         if (year !== '2020') {
             throw Error('There is no data for voter turnout other than for the year 2020');
         }
