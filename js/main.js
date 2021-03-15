@@ -393,15 +393,15 @@ function updateMapColors(palette) {
                 }
             });
     } else if (palette === mapColors.SEX) {
-        let map = $('svg#map');
+        let gradients = $('svg#gradients');
 
-        map.find('defs').empty();
+        gradients.find('defs').empty();
 
         transition.duration(0)
             .attr('fill', function(d) {
                 let id = 'grad' + d.properties.name.replace(/\s/g, '').toLowerCase();
 
-                createSvgGradient(map[0], id, [{
+                createSvgGradient(gradients[0], id, [{
                     offset: '0%',
                     style: 'stop-color:rgb(255,182,193);stop-opacity:1'
                 }, {

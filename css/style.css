@@ -194,6 +194,7 @@ path.state {
 }
 
 #tooltip {
+    width: 14em;
     position: absolute;
     border-radius: 8px;
     background-color: #555;
