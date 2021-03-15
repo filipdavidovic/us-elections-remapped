@@ -212,6 +212,7 @@ path.state {
 }
 
 .fade-in {
+    padding: 50px;
     animation: fadeIn ease 0.75s;
     -webkit-animation: fadeIn ease 0.75s;
     -moz-animation: fadeIn ease 0.75s;

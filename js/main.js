@@ -119,13 +119,13 @@ function setContent() {
 
         if (factor.length === 0) {
             html = '<h2 class="text-center">Select a short term factor from <span class="green">green</span> buttons.</h2>';
-        } else if (factor.val() === 'coronavirus') {
-            html = '<p>Coronavirus BLA BLA BLA.</p>';
+        } else if (factor.val() === 'coronavirus' && year === '2020' ) {
+            $storyline.loadTemplate('templates/storyline/short_term_2020_corona.html');
 
             resetMap();
             updateMapColors(mapColors.EMPTY);
         } else if (factor.val() === 'voter-turnout') {
-            html = '<p>Voter turnout BLA BLA BLA.</p>';
+            $storyline.loadTemplate('templates/storyline/short_term_voterturnout.html');
 
             resetMap();
             updateMapColors(mapColors.EMPTY);
