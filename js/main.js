@@ -4,6 +4,7 @@ const electionYears = ['2012', '2016', '2020'];
 const mapColors = {
     EMPTY: 'empty',
     ELECTION_RESULTS: 'election-results',
+    SEX: 'sex',
 };
 
 // Select and configure elements related to pagination
@@ -77,7 +78,7 @@ function setContent() {
     } else if (factorType.length === 0) {
         $storyline.html('<h2 class="text-center">Select a factor type from <span class="teal">teal</span> buttons on the top.</h2>');
     } else if (factorType.val() === 'normal-map') {
-        let html = '<p>Normal map BLA BLA BLA.</p>';
+        let html = '<p>Normal $map BLA BLA BLA.</p>';
 
         $storyline.html(html);
 
@@ -103,11 +104,11 @@ function setContent() {
 
             resetMap();
             updateMapColors(mapColors.EMPTY);
-        } else if (factor.val() === 'age') {
-            $storyline.loadTemplate('templates/storyline/long_term_age.html');
+        } else if (factor.val() === 'sex') {
+            $storyline.loadTemplate('templates/storyline/long_term_sex.html');
 
             resetMap();
-            updateMapColors(mapColors.EMPTY);
+            updateMapColors(mapColors.SEX);
         } else {
             throw Error('Unexpected value for long term factor: ' + factor.val());
         }
@@ -144,15 +145,20 @@ function resetContentChangers() {
     $('#subnav-container input').prop('checked', false);
 }
 
-// Select the elements needed for the map, and set their children and attributes
-let map = d3.select('#map'),
-    $layer = map.append('g')
+// Select the elements needed for the $map, and set their children and attributes
+let $map = d3.select('#map'),
+    $layer = $map.append('g')
         .attr('id', 'layer'),
     states = $layer.append('g')
         .attr('id', 'states')
         .selectAll('path');
 let tooltip = $('#tooltip');
-let numberFormat = new Intl.NumberFormat('en-NL');
+let numberFormat = new Intl.NumberFormat('en-NL'),
+    percentageFormat = new Intl.NumberFormat('en-NL', {
+        style: 'percent',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
 
 // Prepare cartogram variables
 let topology,
@@ -233,7 +239,7 @@ function clearMap() {
 }
 
 /**
- * Initializes the map with no colors and warping.
+ * Initializes the $map with no colors and warping.
  */
 function initMap() {
     clearMap();
@@ -242,7 +248,7 @@ function initMap() {
     let features = carto.features(topology, geometries);
     let path = d3.geo.path().projection(proj);
 
-    // Put the features on the map
+    // Put the features on the $map
     states = states.data(features)
         .enter().append('path')
         .attr('id', (d) => d.properties.name)
@@ -255,39 +261,98 @@ function initMap() {
         .on('mouseout', hideTooltip);
 }
 
+function createSvgGradient(svg, id, stops) {
+    let svgNS = svg.namespaceURI;
+    let grad  = document.createElementNS(svgNS, 'linearGradient');
+
+    grad.setAttribute('id', id);
+    grad.setAttribute('x1', '0%');
+    grad.setAttribute('x2', '100%');
+    grad.setAttribute('y1', '0%');
+    grad.setAttribute('y2', '0%');
+
+    for (let i = 0; i < stops.length; i++) {
+        let attrs = stops[i];
+        let stop = document.createElementNS(svgNS, 'stop');
+
+        for (let attr in attrs) {
+            if (attrs.hasOwnProperty(attr)) {
+                stop.setAttribute(attr, attrs[attr]);
+            }
+        }
+
+        grad.appendChild(stop);
+    }
+
+    let defs = svg.querySelector('defs') ||
+        svg.insertBefore(document.createElementNS(svgNS, 'defs'), svg.firstChild);
+
+    return defs.appendChild(grad);
+}
+
 function updateMapColors(palette) {
     if (palette === mapColors.EMPTY) {
         states.transition()
-            .delay(750)  // Wait for the map warping to finish
+            .delay(750)  // Wait for the $map warping to finish
             .duration(750)
             .ease('linear')
             .attr('fill', '#fafafa');
     } else if (palette === mapColors.ELECTION_RESULTS) {
-        let stateFill = function(d) {
-            let year = $yearSelector.val();
-
-            if (d.properties.electionResults[year].winnerParty === 'DEM') {
-                return 'rgb(26, 106, 255)';
-            } else if (d.properties.electionResults[year].winnerParty) {
-                return 'rgb(255, 74, 67)';
-            } else {
-                throw Error(`Unrecognized winner party "${d.properties.winnerParty}"`)
-            }
-        }
-
-        // TODO: If you comment this line, cartogram will work fine
         states.transition()
-            .delay(750)  // Wait for the map warping to finish
+            .delay(750)  // Wait for the $map warping to finish
             .duration(750)
             .ease('linear')
-            .attr('fill', stateFill);
+            .attr('fill', function(d) {
+                let year = $yearSelector.val();
+
+                if (d.properties.electionResults[year].winnerParty === 'DEM') {
+                    return 'rgb(26, 106, 255)';
+                } else if (d.properties.electionResults[year].winnerParty) {
+                    return 'rgb(255, 74, 67)';
+                } else {
+                    throw Error(`Unrecognized winner party "${d.properties.winnerParty}"`)
+                }
+            });
+    } else if (palette === mapColors.SEX) {
+        let map = $('svg#map');
+
+        map.find('defs').empty();
+
+        let i = 2;
+
+        states.transition()
+            .delay(750)
+            .duration(750)
+            .ease('linear')
+            .attr('fill', function(d) {
+                // let id = 'grad' + d.properties.name.replace(/\s/g, '').toLowerCase();
+                let id = `grad${i}`
+
+                i++;
+
+                createSvgGradient(map[0], id, [{
+                    offset: '0%',
+                    style: 'stop-color:rgb(255,182,193);stop-opacity:1'
+                }, {
+                    offset: `${Math.round(d.properties.womenPercentage * 100)}%`,
+                    style: 'stop-color:rgb(255,182,193);stop-opacity:1'
+                }, {
+                    offset: `${Math.round(d.properties.womenPercentage * 100)}%`,
+                    style: 'stop-color:rgb(135,206,250);stop-opacity:1'
+                }, {
+                    offset: '100%',
+                    style: 'stop-color:rgb(135,206,250);stop-opacity:1'
+                }]);
+
+                return `url(#${id})`;
+            });
     } else {
         throw Error(`Unrecognized map color palette "${palette}"`);
     }
 }
 
 /**
- * Update the map with appropriate warping. Warping values are chosen by reading the dropdowns and radio buttons.
+ * Update the $map with appropriate warping. Warping values are chosen by reading the dropdowns and radio buttons.
  */
 function updateMap() {
     let values = states.data()
@@ -312,7 +377,7 @@ function updateMap() {
 }
 
 /**
- * Reset the map to the original original shape, i.e. no warping.
+ * Reset the $map to the original original shape, i.e. no warping.
  */
 function resetMap() {
     let features = carto.features(topology, geometries);
@@ -333,6 +398,8 @@ function resetMap() {
  * @param data
  */
 function showTooltip(d, id, data) {
+    // Add highlight around the hovered state
+    $(this).css('stroke-width', '3');
 
     let factorType = $('#factor-selector label.active').find('input');
 
@@ -341,41 +408,54 @@ function showTooltip(d, id, data) {
             .css('left', d3.event.clientX + 15)
             .css('top', d3.event.clientY + 15)
             .loadTemplate('templates/tooltip/electoral_college.html', {
-
-                // set those according to what you want to see with the tooltip.
-                // let us first implement the electoral_college case
-
                 stateName: d.properties.name,
                 population: d.properties.population,
                 electoralVotes: d.properties.electoralVotes,
             });
-    }
+    } else if (factorType.val() === 'short-term') {
+        let factor = $('#short-term-row label.active').find('input');
 
-    else if (factorType.val() === 'short-term') {
         tooltip
             .css('left', d3.event.clientX + 15)
             .css('top', d3.event.clientY + 15)
             .loadTemplate('templates/tooltip/short_term.html', {
-
                 stateName: d.properties.name,
-
             });
 
-    }
+    } else if (factorType.val() === 'long-term') {
+        let factor = $('#long-term-row label.active').find('input');
 
-    else if (factorType.val() === 'long-term') {
-        tooltip
-            .css('left', d3.event.clientX + 15)
-            .css('top', d3.event.clientY + 15)
-            .loadTemplate('templates/tooltip/long_term.html', {
+        if (factor.val() === 'social-class') {
+            tooltip
+                .css('left', d3.event.clientX + 15)
+                .css('top', d3.event.clientY + 15)
+                .loadTemplate('templates/tooltip/long_term.html', {
 
-                stateName: d.properties.name,
+                    stateName: d.properties.name,
 
-            });
+                });
+        } else if (factor.val() === 'race') {
+            tooltip
+                .css('left', d3.event.clientX + 15)
+                .css('top', d3.event.clientY + 15)
+                .loadTemplate('templates/tooltip/long_term.html', {
 
-    }
+                    stateName: d.properties.name,
 
-    else {  // context not set, display only state name
+                });
+        } else if (factor.val() === 'sex') {
+            tooltip
+                .css('left', d3.event.clientX + 15)
+                .css('top', d3.event.clientY + 15)
+                .loadTemplate('templates/tooltip/long_term_sex.html', {
+                    stateName: d.properties.name,
+                    population: numberFormat.format(d.properties.totalPopulation),
+                    womenPercentage: percentageFormat.format(d.properties.womenPercentage),
+                    menPercentage: percentageFormat.format(d.properties.menPercentage),
+                });
+        }
+
+    } else {
         tooltip
             .css('left', d3.event.clientX + 15)
             .css('top', d3.event.clientY + 15)
@@ -389,7 +469,6 @@ function showTooltip(d, id, data) {
 
     }
 
-
     tooltip.removeClass('hidden');
 }
 
@@ -400,7 +479,10 @@ function showTooltip(d, id, data) {
  * @param id - ID of the feature
  */
 function hideTooltip(d, id) {
-    tooltip.addClass('hidden')
+    // Remove highlight around the state
+    $(this).css('stroke-width', '1.5');
+
+    tooltip.addClass('hidden');
 }
 
 /*
