@@ -63,6 +63,7 @@ img.profile {
     top: 64%;
     position: absolute;
     z-index: 1;
+    color: white;
 }
 
 .democrat {
@@ -188,16 +189,9 @@ path.state {
 }
 
 .zoom {
-    width: 3.8em;
-    position: absolute;
+    position: absolute !important;
     top: 33vw;
     right: 4vw;
-}
-
-.zoom .zoom-btn {
-    padding: 0.3em;
-    border: 0.15em solid #555;
-    color: #555;
 }
 
 .fade-in {

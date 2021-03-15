@@ -18,14 +18,14 @@
 <body id="body">
     <div class="container" id="nav-container">
         <div class="row">
-            <div class="col-4">
+            <div class="col-2">
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <label class="input-group-text">Year</label>
                     </div>
 
                     <select class="form-control" id="year-selector">
-                        <option value="default" disabled selected>Choose election year</option>
+                        <option value="default" disabled selected>Choose year</option>
                         <option value="2012">2012</option>
                         <option value="2016">2016</option>
                         <option value="2020">2020</option>
@@ -48,6 +48,13 @@
                         <input value="short-term" type="radio" name="options" id="short-term-select" autocomplete="off"> Short Term Factors
                     </label>
                 </div>
+            </div>
+
+            <div class="col-2">
+                <button type="button" class="btn btn-danger">
+                    <span class="fa fa-play"></span>
+                    Story
+                </button>
             </div>
         </div>
 
@@ -126,14 +133,15 @@
                 <div id="container">
                     <svg id="map"></svg>
 
-                    <div class="row zoom">
-                        <div class="col-6">
-                            <span class="fa fa-minus zoom-btn" onclick="zoomOut()"></span>
-                        </div>
 
-                        <div class="col-6">
-                            <span class="fa fa-plus zoom-btn" onclick="zoomIn()"></span>
-                        </div>
+                    <div class="btn-group zoom">
+                        <button type="button" class="btn btn-outline-secondary">
+                            <span class="fa fa-minus"></span>
+                        </button>
+
+                        <button type="button" class="btn btn-outline-secondary">
+                            <span class="fa fa-plus"></span>
+                        </button>
                     </div>
                 </div>
             </div>
