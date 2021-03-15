@@ -107,7 +107,7 @@ function setContent() {
     } else if (factorType.val() === 'electoral-college') {
         $storyline.loadTemplate('templates/storyline/electoral_college.html');
 
-        updateMap();
+        updateMap(programStates.ELECTORAL_COLLEGE);
         updateMapColors(mapColors.ELECTION_RESULTS);
 
         lastProgramState = programStates.ELECTORAL_COLLEGE;
@@ -156,8 +156,8 @@ function setContent() {
         } else if (factor.val() === 'voter-turnout') {
             $storyline.loadTemplate('templates/storyline/short_term_voterturnout.html');
 
-            resetMap();
-            updateMapColors(mapColors.EMPTY);
+            updateMap(programStates.SHORT_TERM.VOTER_TURNOUT);
+            updateMapColors(mapColors.ELECTION_RESULTS);
 
             lastProgramState = programStates.SHORT_TERM.VOTER_TURNOUT;
         } else {
@@ -218,6 +218,7 @@ let topology,
                     '2020': {
                         winnerParty: dataByState[stateName]['election_results']['2020']['winner_party'],
                         winnerPercentage: dataByState[stateName]['election_results']['2020']['winner_percentage'],
+                        voterTurnout: dataByState[stateName]['election_results']['2020']['turnout'],
                     },
                 },
                 electoralVotes: dataByState[stateName]['electoral_college_votes'],
@@ -423,11 +424,50 @@ function updateMapColors(palette) {
 }
 
 /**
- * Update the map with appropriate warping. Warping values are chosen by reading the dropdowns and radio buttons.
+ * Get object property given a string path.
+ * https://stackoverflow.com/questions/6491463/accessing-nested-javascript-objects-and-arrays-by-string-path?page=1&tab=votes
+ * @param o
+ * @param s
+ * @return {*}
  */
-function updateMap() {
+Object.byString = function(o, s) {
+    s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+    s = s.replace(/^\./, '');           // strip a leading dot
+    let a = s.split('.');
+    for (let i = 0, n = a.length; i < n; ++i) {
+        var k = a[i];
+        if (k in o) {
+            o = o[k];
+        } else {
+            return;
+        }
+    }
+    return o;
+}
+
+/**
+ * Update the map with appropriate warping. Warping values are chosen according to the given program state.
+ *
+ * @param programState - Program state for which to update the map
+ */
+function updateMap(programState) {
+    let objPath = null;
+    if (programState === programStates.ELECTORAL_COLLEGE) {
+        objPath = 'properties.electoralVotes';
+    } else if (programState === programStates.SHORT_TERM.VOTER_TURNOUT) {
+        let year = $yearSelector.val();
+
+        if (year !== '2020') {
+            throw Error('There is no data for voter turnout other than for the year 2020');
+        }
+
+        objPath = `properties.electionResults.${year}.voterTurnout`;
+    } else {
+        throw Error(`Map updates are not supported for program state "${programState}"`);
+    }
+
     let values = states.data()
-        .map((d) => d.properties.electoralVotes)
+        .map((d) => Object.byString(d, objPath))
         .filter((n) => !isNaN(n))
         .sort(d3.ascending)
     let lo = values[0];
@@ -436,7 +476,7 @@ function updateMap() {
     let scale = d3.scale.linear()
         .domain([lo, hi])
         .range([1, 1000]);
-    carto.value((d) => scale(d.properties.electoralVotes));
+    carto.value((d) => scale(Object.byString(d, objPath)));
 
     let features = carto(topology, geometries).features;
 
@@ -481,12 +521,15 @@ function showTooltip(d, id, data) {
                 electoralVotes: d.properties.electoralVotes,
             });
     } else if (factorType.val() === 'short-term') {
+        let year = $yearSelector.val();
         let factor = $('#short-term-row label.active').find('input');
 
-        tooltip.loadTemplate('templates/tooltip/short_term.html', {
-                stateName: d.properties.name,
-            });
-
+        if (factor.val() === 'voter-turnout') {
+            tooltip.loadTemplate('templates/tooltip/short_term_voter_turnout.html', {
+                    stateName: d.properties.name,
+                    voterTurnout: year === '2020' ? percentageFormat.format(d.properties.electionResults[year].voterTurnout) : 'MISSING DATA',
+                });
+        }
     } else if (factorType.val() === 'long-term') {
         let factor = $('#long-term-row label.active').find('input');
 
