@@ -96,10 +96,8 @@ function setContent() {
 
         lastProgramState = programStates.DEFAULT;
     } else if (factorType.val() === 'normal-map') {
-        let html = '<p>Normal map BLA BLA BLA.</p>';
 
-        $storyline.html(html);
-
+        $storyline.loadTemplate('templates/storyline/normal_map.html');
         resetMap();
         updateMapColors(mapColors.ELECTION_RESULTS);
 
