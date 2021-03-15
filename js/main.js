@@ -2,6 +2,7 @@
 const electionYears = ['2012', '2016', '2020'];
 
 const mapColors = {
+    EMPTY: 'empty',
     ELECTION_RESULTS: 'election-results',
 };
 
@@ -86,6 +87,7 @@ function setContent() {
         $storyline.loadTemplate('templates/storyline/electoral_college.html');
 
         updateMap();
+        updateMapColors(mapColors.ELECTION_RESULTS);
     } else if (factorType.val() === 'long-term') {
         let factor = $('#long-term-row label.active').find('input');
 
@@ -94,15 +96,18 @@ function setContent() {
         } else if (factor.val() === 'social-class') {
             $storyline.loadTemplate('templates/storyline/long_term_social_class.html');
 
-            // TODO: Update the map
+            resetMap();
+            updateMapColors(mapColors.EMPTY);
         } else if (factor.val() === 'race') {
             $storyline.loadTemplate('templates/storyline/long_term_race.html');
 
-            // TODO: Update the map
+            resetMap();
+            updateMapColors(mapColors.EMPTY);
         } else if (factor.val() === 'age') {
             $storyline.loadTemplate('templates/storyline/long_term_age.html');
 
-            // TODO: Update the map
+            resetMap();
+            updateMapColors(mapColors.EMPTY);
         } else {
             throw Error('Unexpected value for long term factor: ' + factor.val());
         }
@@ -115,11 +120,13 @@ function setContent() {
         } else if (factor.val() === 'coronavirus') {
             html = '<p>Coronavirus BLA BLA BLA.</p>';
 
-            // TODO: Update the map
+            resetMap();
+            updateMapColors(mapColors.EMPTY);
         } else if (factor.val() === 'voter-turnout') {
             html = '<p>Voter turnout BLA BLA BLA.</p>';
 
-            // TODO: Update the map
+            resetMap();
+            updateMapColors(mapColors.EMPTY);
         } else {
             throw Error('Unexpected value for short term factor: ' + factor.val());
         }
@@ -215,24 +222,6 @@ function updateElectionResultsIndicator() {
     $('#election-results-vote-counter-republicans').text(presidentialCandidates[year]['republicans']['votes']);
 }
 
-/**
- * Returns CSS classes for state polygons containing the fill color based on the state properties
- *
- * @param d - Polygon
- * @return {String} - Classes
- * @throws Error - if unrecognized properties are encountered
- */
-function fillClass(d) {
-    let year = $yearSelector.val();
-    if (d.properties.electionResults[year].winnerParty === 'DEM') {
-        return 'state democrat-f';
-    } else if (d.properties.electionResults[year].winnerParty) {
-        return 'state republican-f'
-    } else {
-        throw Error(`Unrecognized winner party "${d.properties.winnerParty}"`)
-    }
-}
-
 function clearMap() {
     $('#states').remove();
     states = $layer.append('g')
@@ -255,24 +244,49 @@ function initMap() {
         .enter().append('path')
         .attr('id', (d) => d.properties.name)
         .attr('d', path)
-        .attr('class', 'state init');
+        .attr('class', 'state')
+        .attr('fill', '#fafafa');
 
     states
         .on('mousemove', showTooltip)
         .on('mouseout', hideTooltip);
 }
 
-function updateMapColors() {
-    states.attr('class', fillClass);
+function updateMapColors(palette) {
+    if (palette === mapColors.EMPTY) {
+        states.transition()
+            .delay(750)  // Wait for the map warping to finish
+            .duration(750)
+            .ease('linear')
+            .attr('fill', '#fafafa');
+    } else if (palette === mapColors.ELECTION_RESULTS) {
+        let stateFill = function(d) {
+            let year = $yearSelector.val();
+
+            if (d.properties.electionResults[year].winnerParty === 'DEM') {
+                return 'rgb(26, 106, 255)';
+            } else if (d.properties.electionResults[year].winnerParty) {
+                return 'rgb(255, 74, 67)';
+            } else {
+                throw Error(`Unrecognized winner party "${d.properties.winnerParty}"`)
+            }
+        }
+
+        // TODO: If you comment this line, cartogram will work fine
+        states.transition()
+            .delay(750)  // Wait for the map warping to finish
+            .duration(750)
+            .ease('linear')
+            .attr('fill', stateFill);
+    } else {
+        throw Error(`Unrecognized map color palette "${palette}"`);
+    }
 }
 
 /**
- * Update the map with colors and appropriate warping. Colors and warping values are chosen by reading the
- * dropdowns and radio buttons.
+ * Update the map with appropriate warping. Warping values are chosen by reading the dropdowns and radio buttons.
  */
 function updateMap() {
-    // d3.polygonArea(d.geometry.coordinates[0])
-
     let values = states.data()
         .map((d) => d.properties.electoralVotes)
         .filter((n) => !isNaN(n))
@@ -294,6 +308,9 @@ function updateMap() {
         .attr('d', carto.path);
 }
 
+/**
+ * Reset the map to the original original shape, i.e. no warping.
+ */
 function resetMap() {
     let features = carto.features(topology, geometries);
     let path = d3.geo.path().projection(proj);

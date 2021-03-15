@@ -174,10 +174,6 @@ path.state {
     stroke-width: 1.5;
 }
 
-path.state.init {
-    fill: #fafafa;
-}
-
 .hidden {
     display: none !important;
 }
