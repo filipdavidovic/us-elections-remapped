@@ -8,6 +8,7 @@ const mapColors = {
 };
 
 // Select and configure elements related to pagination
+let $body = $('body');
 let $yearSelector = $('#year-selector');
 let $storyline = $('#storyline');
 let $shortTermRow = $('#short-term-row');
@@ -307,10 +308,10 @@ function updateMapColors(palette) {
 
                 if (d.properties.electionResults[year].winnerParty === 'DEM') {
                     return 'rgb(26, 106, 255)';
-                } else if (d.properties.electionResults[year].winnerParty) {
+                } else if (d.properties.electionResults[year].winnerParty === 'REP') {
                     return 'rgb(255, 74, 67)';
                 } else {
-                    throw Error(`Unrecognized winner party "${d.properties.winnerParty}"`)
+                    throw Error(`Unrecognized winner party "${d.properties.winnerParty}"`);
                 }
             });
     } else if (palette === mapColors.SEX) {
@@ -318,13 +319,9 @@ function updateMapColors(palette) {
 
         map.find('defs').empty();
 
-        let i = 2;
-
-        states.attr('fill', function(d) {
-                // let id = 'grad' + d.properties.name.replace(/\s/g, '').toLowerCase();
-                let id = `grad${i}`
-
-                i++;
+        states.transition()
+            .attr('fill', function(d) {
+                let id = 'grad' + d.properties.name.replace(/\s/g, '').toLowerCase();
 
                 createSvgGradient(map[0], id, [{
                     offset: '0%',
@@ -400,10 +397,7 @@ function showTooltip(d, id, data) {
     let factorType = $('#factor-selector label.active').find('input');
 
     if (factorType.val() === 'electoral-college') {
-        tooltip
-            .css('left', d3.event.clientX + 15)
-            .css('top', d3.event.clientY + 15)
-            .loadTemplate('templates/tooltip/electoral_college.html', {
+        tooltip.loadTemplate('templates/tooltip/electoral_college.html', {
                 stateName: d.properties.name,
                 population: d.properties.population,
                 electoralVotes: d.properties.electoralVotes,
@@ -411,10 +405,7 @@ function showTooltip(d, id, data) {
     } else if (factorType.val() === 'short-term') {
         let factor = $('#short-term-row label.active').find('input');
 
-        tooltip
-            .css('left', d3.event.clientX + 15)
-            .css('top', d3.event.clientY + 15)
-            .loadTemplate('templates/tooltip/short_term.html', {
+        tooltip.loadTemplate('templates/tooltip/short_term.html', {
                 stateName: d.properties.name,
             });
 
@@ -422,50 +413,57 @@ function showTooltip(d, id, data) {
         let factor = $('#long-term-row label.active').find('input');
 
         if (factor.val() === 'social-class') {
-            tooltip
-                .css('left', d3.event.clientX + 15)
-                .css('top', d3.event.clientY + 15)
-                .loadTemplate('templates/tooltip/long_term.html', {
-
+            tooltip.loadTemplate('templates/tooltip/long_term.html', {
                     stateName: d.properties.name,
-
                 });
         } else if (factor.val() === 'race') {
-            tooltip
-                .css('left', d3.event.clientX + 15)
-                .css('top', d3.event.clientY + 15)
-                .loadTemplate('templates/tooltip/long_term.html', {
+            tooltip.loadTemplate('templates/tooltip/long_term.html', {
 
                     stateName: d.properties.name,
 
                 });
         } else if (factor.val() === 'sex') {
-            tooltip
-                .css('left', d3.event.clientX + 15)
-                .css('top', d3.event.clientY + 15)
-                .loadTemplate('templates/tooltip/long_term_sex.html', {
+            let year = $yearSelector.val();
+            let partyIndicatorClass = null;
+
+            if (d.properties.electionResults[year].winnerParty === 'DEM') {
+                partyIndicatorClass = 'tooltip-party-indicator democrat-b';
+            } else if (d.properties.electionResults[year].winnerParty === 'REP') {
+                partyIndicatorClass = 'tooltip-party-indicator republican-b';
+            } else {
+                throw Error(`Unrecognized winner party "${d.properties.winnerParty}"`);
+            }
+
+            tooltip.loadTemplate('templates/tooltip/long_term_sex.html', {
                     stateName: d.properties.name,
                     population: numberFormat.format(d.properties.totalPopulation),
+                    partyIndicatorClass: partyIndicatorClass,
                     womenPercentage: percentageFormat.format(d.properties.womenPercentage),
                     menPercentage: percentageFormat.format(d.properties.menPercentage),
                 });
         }
 
     } else {
-        tooltip
-            .css('left', d3.event.clientX + 15)
-            .css('top', d3.event.clientY + 15)
-            .loadTemplate('templates/tooltip/context_unset.html', {
-
+        tooltip.loadTemplate('templates/tooltip/context_unset.html', {
                 stateName: d.properties.name,
                 electoralVotes: d.properties.electoralVotes,
                 population: numberFormat.format(d.properties.totalPopulation),
             });
-
-
     }
 
+    // Show the tooltip
     tooltip.removeClass('hidden');
+
+    // Calculate the position where the tooltip should be
+    let tooltipX = d3.event.clientX + 15;
+    let tooltipY = d3.event.clientY + 15;
+
+    if (tooltipY + tooltip.outerHeight() > $(window).height()) {
+        tooltipY = d3.event.clientY - tooltip.outerHeight();
+    }
+
+    tooltip.css('left', tooltipX)
+        .css('top', tooltipY);
 }
 
 /**
