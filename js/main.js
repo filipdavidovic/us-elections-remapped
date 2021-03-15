@@ -7,8 +7,25 @@ const mapColors = {
     SEX: 'sex',
 };
 
-// Select and configure elements related to pagination
-let $body = $('body');
+const programStates = {
+    DEFAULT: 'default',
+    NORMAL_MAP: 'normal-map',
+    ELECTORAL_COLLEGE: 'electoral-college',
+    LONG_TERM: {
+        SOCIAL_CLASS: 'social-class',
+        RACE: 'race',
+        SEX: 'sex',
+    },
+    SHORT_TERM: {
+        SPECIFIC: 'specific',
+        VOTER_TURNOUT: 'voter-turnout',
+    },
+};
+
+const specialColorProgramStates = [programStates.LONG_TERM.SEX];  // These program states have special colors which should not be transitioned to and from
+
+// Set up and configure pagination
+let lastProgramState = null;
 let $yearSelector = $('#year-selector');
 let $storyline = $('#storyline');
 let $shortTermRow = $('#short-term-row');
@@ -24,9 +41,7 @@ $yearSelector.on('change', function() {
     $('#democrat-name').text(presidentialCandidates[selected].democrats.name);
     $('#republican-name').text(presidentialCandidates[selected].republicans.name);
 
-    // TODO: Update results indicator using election data
-
-    $('#election-results-row').removeClass('hidden');
+    $('#election-results-row').removeClass('hidden');  // Show results indicator
 
     updateMapColors(mapColors.ELECTION_RESULTS);
     updateElectionResultsIndicator();
@@ -78,18 +93,24 @@ function setContent() {
         $storyline.html('<h2 class="text-center">Select an election year from the dropdown.</h2>');
     } else if (factorType.length === 0) {
         $storyline.html('<h2 class="text-center">Select a factor type from <span class="teal">teal</span> buttons on the top.</h2>');
+
+        lastProgramState = programStates.DEFAULT;
     } else if (factorType.val() === 'normal-map') {
-        let html = '<p>Normal $map BLA BLA BLA.</p>';
+        let html = '<p>Normal map BLA BLA BLA.</p>';
 
         $storyline.html(html);
 
         resetMap();
         updateMapColors(mapColors.ELECTION_RESULTS);
+
+        lastProgramState = programStates.NORMAL_MAP;
     } else if (factorType.val() === 'electoral-college') {
         $storyline.loadTemplate('templates/storyline/electoral_college.html');
 
         updateMap();
         updateMapColors(mapColors.ELECTION_RESULTS);
+
+        lastProgramState = programStates.ELECTORAL_COLLEGE;
     } else if (factorType.val() === 'long-term') {
         let factor = $('#long-term-row label.active').find('input');
 
@@ -100,16 +121,22 @@ function setContent() {
 
             resetMap();
             updateMapColors(mapColors.EMPTY);
+
+            lastProgramState = programStates.LONG_TERM.SOCIAL_CLASS;
         } else if (factor.val() === 'race') {
             $storyline.loadTemplate('templates/storyline/long_term_race.html');
 
             resetMap();
             updateMapColors(mapColors.EMPTY);
+
+            lastProgramState = programStates.LONG_TERM.RACE;
         } else if (factor.val() === 'sex') {
             $storyline.loadTemplate('templates/storyline/long_term_sex.html');
 
             resetMap();
             updateMapColors(mapColors.SEX);
+
+            lastProgramState = programStates.LONG_TERM.SEX;
         } else {
             throw Error('Unexpected value for long term factor: ' + factor.val());
         }
@@ -124,11 +151,15 @@ function setContent() {
 
             resetMap();
             updateMapColors(mapColors.EMPTY);
+
+            lastProgramState = programStates.SHORT_TERM.SPECIFIC;
         } else if (factor.val() === 'voter-turnout') {
             $storyline.loadTemplate('templates/storyline/short_term_voterturnout.html');
 
             resetMap();
             updateMapColors(mapColors.EMPTY);
+
+            lastProgramState = programStates.SHORT_TERM.VOTER_TURNOUT;
         } else {
             throw Error('Unexpected value for short term factor: ' + factor.val());
         }
@@ -146,7 +177,7 @@ function resetContentChangers() {
     $('#subnav-container input').prop('checked', false);
 }
 
-// Select the elements needed for the $map, and set their children and attributes
+// Select the elements needed for the map, and set their children and attributes
 let $map = d3.select('#map'),
     $layer = $map.append('g')
         .attr('id', 'layer'),
@@ -240,7 +271,7 @@ function clearMap() {
 }
 
 /**
- * Initializes the $map with no colors and warping.
+ * Initializes the map with no colors and warping.
  */
 function initMap() {
     clearMap();
@@ -249,7 +280,7 @@ function initMap() {
     let features = carto.features(topology, geometries);
     let path = d3.geo.path().projection(proj);
 
-    // Put the features on the $map
+    // Put the features on the map
     states = states.data(features)
         .enter().append('path')
         .attr('id', (d) => d.properties.name)
@@ -292,18 +323,22 @@ function createSvgGradient(svg, id, stops) {
 }
 
 function updateMapColors(palette) {
+    let transition = states.transition()
+        .delay(750);  // Wait for the map warping to finish
+
+    if (!specialColorProgramStates.includes(lastProgramState)) {
+        transition
+            .duration(750)
+            .ease('linear');
+    } else {
+        transition
+            .duration(0);
+    }
+
     if (palette === mapColors.EMPTY) {
-        states.transition()
-            .delay(750)  // Wait for the $map warping to finish
-            .duration(750)
-            .ease('linear')
-            .attr('fill', '#fafafa');
+        transition.attr('fill', '#fafafa');
     } else if (palette === mapColors.ELECTION_RESULTS) {
-        states.transition()
-            .delay(750)  // Wait for the $map warping to finish
-            .duration(750)
-            .ease('linear')
-            .attr('fill', function(d) {
+        transition.attr('fill', function(d) {
                 let year = $yearSelector.val();
 
                 if (d.properties.electionResults[year].winnerParty === 'DEM') {
@@ -319,7 +354,7 @@ function updateMapColors(palette) {
 
         map.find('defs').empty();
 
-        states.transition()
+        transition.duration(0)
             .attr('fill', function(d) {
                 let id = 'grad' + d.properties.name.replace(/\s/g, '').toLowerCase();
 
@@ -345,7 +380,7 @@ function updateMapColors(palette) {
 }
 
 /**
- * Update the $map with appropriate warping. Warping values are chosen by reading the dropdowns and radio buttons.
+ * Update the map with appropriate warping. Warping values are chosen by reading the dropdowns and radio buttons.
  */
 function updateMap() {
     let values = states.data()
@@ -370,7 +405,7 @@ function updateMap() {
 }
 
 /**
- * Reset the $map to the original original shape, i.e. no warping.
+ * Reset the map to the original original shape, i.e. no warping.
  */
 function resetMap() {
     let features = carto.features(topology, geometries);
