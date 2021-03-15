@@ -320,11 +320,7 @@ function updateMapColors(palette) {
 
         let i = 2;
 
-        states.transition()
-            .delay(750)
-            .duration(750)
-            .ease('linear')
-            .attr('fill', function(d) {
+        states.attr('fill', function(d) {
                 // let id = 'grad' + d.properties.name.replace(/\s/g, '').toLowerCase();
                 let id = `grad${i}`
 
@@ -486,15 +482,11 @@ function hideTooltip(d, id) {
 }
 
 /*
-
 function zoomIn() {
-    var GFG = document.getElementById("body");
-    GFG.style.zoom = GFG.style.zoom + 10;
+
 }
 
 function zoomOut() {
-    var GFG = document.getElementById("body");
-    GFG.style.zoom = GFG.style.zoom - 1;
-}
 
+}
 */
