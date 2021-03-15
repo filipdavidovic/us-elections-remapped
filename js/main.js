@@ -152,7 +152,7 @@ let map = d3.select('#map'),
         .attr('id', 'states')
         .selectAll('path');
 let tooltip = $('#tooltip');
-
+let numberFormat = new Intl.NumberFormat('en-NL');
 
 // Prepare cartogram variables
 let topology,
@@ -183,6 +183,9 @@ let topology,
                     },
                 },
                 electoralVotes: dataByState[stateName]['electoral_college_votes'],
+                totalPopulation: dataByState[stateName]['total_population'],
+                womenPercentage: dataByState[stateName]['women_percentage'],
+                menPercentage: 1 - dataByState[stateName]['women_percentage'],
             };
         });
 
@@ -379,7 +382,8 @@ function showTooltip(d, id, data) {
             .loadTemplate('templates/tooltip/context_unset.html', {
 
                 stateName: d.properties.name,
-
+                electoralVotes: d.properties.electoralVotes,
+                population: numberFormat.format(d.properties.totalPopulation),
             });
 
 
