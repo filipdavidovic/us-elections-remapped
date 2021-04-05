@@ -5,6 +5,7 @@ const mapColors = {
     EMPTY: 'empty',
     ELECTION_RESULTS: 'election-results',
     SEX: 'sex',
+    SOCIAL_CLASS: 'social-class',
 };
 
 const programStates = {
@@ -117,8 +118,8 @@ function setContent() {
         } else if (factor.val() === 'social-class') {
             $storyline.loadTemplate('templates/storyline/long_term_social_class.html');
 
-            resetMap();
-            updateMapColors(mapColors.EMPTY);
+            updateMap(programStates.LONG_TERM.SOCIAL_CLASS);
+            updateMapColors(mapColors.SOCIAL_CLASS);
 
             lastProgramState = programStates.LONG_TERM.SOCIAL_CLASS;
         } else if (factor.val() === 'race') {
@@ -183,7 +184,10 @@ let $map = d3.select('#map'),
         .attr('id', 'states')
         .selectAll('path');
 let tooltip = $('#tooltip');
-let numberFormat = new Intl.NumberFormat('en-NL'),
+let numberFormat = new Intl.NumberFormat('en-NL', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }),
     percentageFormat = new Intl.NumberFormat('en-NL', {
         style: 'percent',
         minimumFractionDigits: 2,
@@ -223,6 +227,10 @@ let topology,
                 totalPopulation: dataByState[stateName]['total_population'],
                 womenPercentage: dataByState[stateName]['women_percentage'],
                 menPercentage: 1 - dataByState[stateName]['women_percentage'],
+                socialClass: {
+                    score: dataByState[stateName]['social_class']['score'],
+                    impact: dataByState[stateName]['social_class']['impact'],
+                }
             };
         });
 
@@ -401,6 +409,21 @@ function updateMapColors(palette) {
 
                 return `url(#${id})`;
             });
+    } else if (palette === mapColors.SOCIAL_CLASS) {
+        let values = states.data()
+            .map((d) => d.properties.socialClass.score)
+            .filter((n) => !isNaN(n))
+            .sort(d3.ascending)
+        let lo = values[0];
+        let hi = values[values.length - 1];
+
+        let scale = d3.scale.linear()
+            .domain([lo, hi])
+            .range(['#efedf5', '#756bb1']);
+
+        transition.attr('fill', function(d) {
+            return scale(d.properties.socialClass.score);
+        });
     } else {
         throw Error(`Unrecognized map color palette "${palette}"`);
     }
@@ -469,6 +492,8 @@ function updateMap(programState) {
         }
 
         objPath = `properties.electionResults.${year}.voterTurnout`;
+    } else if (programState === programStates.LONG_TERM.SOCIAL_CLASS) {
+        objPath = 'properties.socialClass.impact';
     } else {
         throw Error(`Map updates are not supported for program state "${programState}"`);
     }
@@ -540,10 +565,25 @@ function showTooltip(d, id, data) {
     } else if (factorType.val() === 'long-term') {
         let factor = $('#long-term-row label.active').find('input');
 
+        let year = $yearSelector.val();
+        let partyIndicatorClass = null;
+
+        if (d.properties.electionResults[year].winnerParty === 'DEM') {
+            partyIndicatorClass = 'tooltip-party-indicator democrat-b';
+        } else if (d.properties.electionResults[year].winnerParty === 'REP') {
+            partyIndicatorClass = 'tooltip-party-indicator republican-b';
+        } else {
+            throw Error(`Unrecognized winner party "${d.properties.winnerParty}"`);
+        }
+
         if (factor.val() === 'social-class') {
-            tooltip.loadTemplate('templates/tooltip/long_term.html', {
-                    stateName: d.properties.name,
-                });
+            tooltip.loadTemplate('templates/tooltip/long_term_social_class.html', {
+                stateName: d.properties.name,
+                partyIndicatorClass: partyIndicatorClass,
+                socialClassScore: numberFormat.format(d.properties.socialClass.score),
+                electoralVotes: d.properties.electoralVotes,
+                socialClassImpact: numberFormat.format(d.properties.socialClass.impact),
+            });
         } else if (factor.val() === 'race') {
             tooltip.loadTemplate('templates/tooltip/long_term.html', {
 
@@ -551,24 +591,13 @@ function showTooltip(d, id, data) {
 
                 });
         } else if (factor.val() === 'sex') {
-            let year = $yearSelector.val();
-            let partyIndicatorClass = null;
-
-            if (d.properties.electionResults[year].winnerParty === 'DEM') {
-                partyIndicatorClass = 'tooltip-party-indicator democrat-b';
-            } else if (d.properties.electionResults[year].winnerParty === 'REP') {
-                partyIndicatorClass = 'tooltip-party-indicator republican-b';
-            } else {
-                throw Error(`Unrecognized winner party "${d.properties.winnerParty}"`);
-            }
-
             tooltip.loadTemplate('templates/tooltip/long_term_sex.html', {
-                    stateName: d.properties.name,
-                    population: numberFormat.format(d.properties.totalPopulation),
-                    partyIndicatorClass: partyIndicatorClass,
-                    womenPercentage: percentageFormat.format(d.properties.womenPercentage),
-                    menPercentage: percentageFormat.format(d.properties.menPercentage),
-                });
+                stateName: d.properties.name,
+                population: numberFormat.format(d.properties.totalPopulation),
+                partyIndicatorClass: partyIndicatorClass,
+                womenPercentage: percentageFormat.format(d.properties.womenPercentage),
+                menPercentage: percentageFormat.format(d.properties.menPercentage),
+            });
         }
 
     } else {
