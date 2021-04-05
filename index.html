@@ -37,26 +37,38 @@
 
             <div class="col-8">
                 <div id="factor-selector" class="btn-group btn-group-toggle" data-toggle="buttons">
-                    <label class="btn btn-info">
-                        <input value="normal-map" type="radio" name="options" id="normal-map-select" autocomplete="off"> Normal Map
+                    <label id="normal-map-select-label" class="btn btn-info">
+                        <input id="normal-map-select" value="normal-map" type="radio" name="options" autocomplete="off"> Normal Map
                     </label>
-                    <label class="btn btn-info">
-                        <input value="electoral-college" type="radio" name="options" id="electoral-college-select" autocomplete="off"> Electoral College
+                    <label id="electoral-college-select-label" class="btn btn-info">
+                        <input id="electoral-college-select" value="electoral-college" type="radio" name="options" autocomplete="off"> Electoral College
                     </label>
-                    <label class="btn btn-info">
-                        <input value="long-term" type="radio" name="options" id="long-term-select" autocomplete="off"> Long Term Factors
+                    <label id="long-term-select-label" class="btn btn-info">
+                        <input id="long-term-select" value="long-term" type="radio" name="options" autocomplete="off"> Long Term Factors
                     </label>
-                    <label class="btn btn-info">
-                        <input value="short-term" type="radio" name="options" id="short-term-select" autocomplete="off"> Short Term Factors
+                    <label id="short-term-select-label" class="btn btn-info">
+                        <input id="short-term-select" value="short-term" type="radio" name="options" autocomplete="off"> Short Term Factors
                     </label>
                 </div>
             </div>
 
             <div class="col-2">
-                <button type="button" class="btn btn-danger">
-                    <span class="fa fa-play"></span>
-                    Story
-                </button>
+                <div id="story-stopped-group">
+                    <button id="story-start" type="button" class="btn btn-danger">
+                        <span class="fa fa-play"></span>
+                        Story
+                    </button>
+                </div>
+
+                <div id="story-playing-group" class="hidden">
+                    <button id="story-toggle" type="button" class="btn btn-danger">
+                        <span class="fa fa-pause"></span>
+                    </button>
+
+                    <button id="story-stop" type="button" class="btn btn-danger">
+                        <span class="fa fa-stop"></span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -95,14 +107,14 @@
 
                 <div class="col-6">
                     <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                        <label class="btn btn-success content-changer">
-                            <input value="social-class" type="radio" name="options" id="lt-social-class" autocomplete="off"> Social Class
+                        <label id="lt-social-class-label" class="btn btn-success">
+                            <input id="lt-social-class" class="content-changer" value="social-class" type="radio" name="options" autocomplete="off"> Social Class
                         </label>
-                        <label class="btn btn-success content-changer">
-                            <input value="race" type="radio" name="options" id="lt-race" autocomplete="off"> Race
+                        <label id="lt-race-label" class="btn btn-success">
+                            <input id="lt-race" class="content-changer" value="race" type="radio" name="options" autocomplete="off"> Race
                         </label>
-                        <label class="btn btn-success content-changer">
-                            <input value="sex" type="radio" name="options" id="lt-age" autocomplete="off"> Sex
+                        <label id="lt-sex-label" class="btn btn-success">
+                            <input id="lt-sex" class="content-changer" value="sex" type="radio" name="options" autocomplete="off"> Sex
                         </label>
                     </div>
                 </div>
@@ -115,11 +127,11 @@
 
                 <div class="col-6">
                     <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                        <label class="btn btn-success content-changer">
-                            <input value="coronavirus" type="radio" name="options" id="st-coronavirus" autocomplete="off"> Specific factor
+                        <label id="st-special-label" class="btn btn-success">
+                            <input id="st-special" class="content-changer" value="special" type="radio" name="options" autocomplete="off"> Specific factor
                         </label>
-                        <label class="btn btn-success content-changer">
-                            <input value="voter-turnout" type="radio" name="options" id="st-voter-turnout" autocomplete="off"> Voter Turnout
+                        <label id="st-voter-turnout-label" class="btn btn-success">
+                            <input id="st-voter-turnout" class="content-changer" value="voter-turnout" type="radio" name="options" autocomplete="off"> Voter Turnout
                         </label>
                     </div>
                 </div>

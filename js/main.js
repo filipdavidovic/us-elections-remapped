@@ -11,8 +11,8 @@ const mapColors = {
 
 const programStates = {
     DEFAULT: 'default',
-    NORMAL_MAP: 'normal-map',
     ELECTORAL_COLLEGE: 'electoral-college',
+    MID: 'mid',
     LONG_TERM: {
         SOCIAL_CLASS: 'social-class',
         RACE: 'race',
@@ -26,13 +26,25 @@ const programStates = {
 
 const specialColorProgramStates = [programStates.LONG_TERM.SEX];  // These program states have special colors which should not be transitioned to and from
 
-// Set up and configure pagination
-let lastProgramState = null;
-let $yearSelector = $('#year-selector');
-let $storyline = $('#storyline');
-let $shortTermRow = $('#short-term-row');
-let $longTermRow = $('#long-term-row');
-let $electionResultsBar = $('#election-results-bar');
+const STORY_STEP_TIMEOUT = 15000; // 15,000 ms == 15s
+
+/**
+ * Event handling
+ */
+let currentProgramState = programStates.DEFAULT;
+let $yearSelector = $('#year-selector'),
+    $normalMapSelect = $('#normal-map-select'),
+    $electoralCollegeSelect = $('#electoral-college-select'),
+    $longTermSelect = $('#long-term-select'),
+    $shortTermSelect = $('#short-term-select'),
+    $normalMapSelectLabel = $('#normal-map-select-label'),
+    $electoralCollegeSelectLabel = $('#electoral-college-select-label'),
+    $longTermSelectLabel = $('#long-term-select-label'),
+    $shortTermSelectLabel = $('#short-term-select-label'),
+    $storyline = $('#storyline'),
+    $shortTermRow = $('#short-term-row'),
+    $longTermRow = $('#long-term-row'),
+    $electionResultsBar = $('#election-results-bar');
 
 $yearSelector.on('change', function() {
     let selected = $('select option:selected').val();
@@ -51,7 +63,7 @@ $yearSelector.on('change', function() {
     setContent();
 })
 
-$('#normal-map-select').on('click', function() {
+$normalMapSelect.on('click', function() {
     $shortTermRow.addClass('hidden');
     $longTermRow.addClass('hidden');
 
@@ -59,7 +71,7 @@ $('#normal-map-select').on('click', function() {
     setContent();
 });
 
-$('#electoral-college-select').on('click', function() {
+$electoralCollegeSelect.on('click', function() {
     $shortTermRow.addClass('hidden');
     $longTermRow.addClass('hidden');
 
@@ -67,7 +79,7 @@ $('#electoral-college-select').on('click', function() {
     setContent();
 });
 
-$('#long-term-select').on('click', function() {
+$longTermSelect.on('click', function() {
     $shortTermRow.addClass('hidden');
     $longTermRow.removeClass('hidden');
 
@@ -75,7 +87,7 @@ $('#long-term-select').on('click', function() {
     setContent();
 });
 
-$('#short-term-select').on('click', function() {
+$shortTermSelect.on('click', function() {
     $shortTermRow.removeClass('hidden');
     $longTermRow.addClass('hidden');
 
@@ -87,56 +99,75 @@ $('.content-changer').on('click', function() {
     setContent();
 });
 
+$('#story-start').on('click', function() {
+    storyStart();
+});
+
+$('#story-toggle').on('click', function() {
+    storyToggle();
+});
+
+$('#story-stop').on('click', function() {
+    storyStop();
+});
+
+/**
+ * Functions to change content. These functions update the map shape, color and accompanying text.
+ */
 function setContent() {
     let year = $('select option:selected').val();
     let factorType = $('#factor-selector label.active').find('input');
 
     if (year === 'default') {
         $storyline.html('<h2 class="text-center">Select an election year from the dropdown.</h2>');
+
+        currentProgramState = programStates.DEFAULT;
     } else if (factorType.length === 0) {
         $storyline.html('<h2 class="text-center">Select a factor type from <span class="teal">teal</span> buttons on the top.</h2>');
 
-        lastProgramState = programStates.DEFAULT;
+        currentProgramState = programStates.DEFAULT;
     } else if (factorType.val() === 'normal-map') {
-
         $storyline.loadTemplate('templates/storyline/normal_map.html');
+
         resetMap();
         updateMapColors(mapColors.ELECTION_RESULTS);
 
-        lastProgramState = programStates.NORMAL_MAP;
+        currentProgramState = programStates.DEFAULT;
     } else if (factorType.val() === 'electoral-college') {
         $storyline.loadTemplate('templates/storyline/electoral_college.html');
 
         updateMap(programStates.ELECTORAL_COLLEGE);
         updateMapColors(mapColors.ELECTION_RESULTS);
 
-        lastProgramState = programStates.ELECTORAL_COLLEGE;
+        currentProgramState = programStates.ELECTORAL_COLLEGE;
     } else if (factorType.val() === 'long-term') {
         let factor = $('#long-term-row label.active').find('input');
 
         if (factor.length === 0) {
             $storyline.html('<h2 class="text-center">Select a long term factor from <span class="green">green</span> buttons.</h2>');
+
+            currentProgramState = programStates.MID;
         } else if (factor.val() === 'social-class') {
             $storyline.loadTemplate('templates/storyline/long_term_social_class.html');
 
             updateMap(programStates.LONG_TERM.SOCIAL_CLASS);
             updateMapColors(mapColors.SOCIAL_CLASS);
 
-            lastProgramState = programStates.LONG_TERM.SOCIAL_CLASS;
+            currentProgramState = programStates.LONG_TERM.SOCIAL_CLASS;
         } else if (factor.val() === 'race') {
             $storyline.loadTemplate('templates/storyline/long_term_race.html');
 
             resetMap();
             updateMapColors(mapColors.RACE);
 
-            lastProgramState = programStates.LONG_TERM.RACE;
+            currentProgramState = programStates.LONG_TERM.RACE;
         } else if (factor.val() === 'sex') {
             $storyline.loadTemplate('templates/storyline/long_term_sex.html');
 
             resetMap();
             updateMapColors(mapColors.SEX);
 
-            lastProgramState = programStates.LONG_TERM.SEX;
+            currentProgramState = programStates.LONG_TERM.SEX;
         } else {
             throw Error('Unexpected value for long term factor: ' + factor.val());
         }
@@ -146,20 +177,24 @@ function setContent() {
 
         if (factor.length === 0) {
             html = '<h2 class="text-center">Select a short term factor from <span class="green">green</span> buttons.</h2>';
-        } else if (factor.val() === 'coronavirus' && year === '2020' ) {
-            $storyline.loadTemplate('templates/storyline/short_term_2020_corona.html');
+
+            currentProgramState = programStates.MID;
+        } else if (factor.val() === 'special') {
+            if (year === '2020') {
+                $storyline.loadTemplate('templates/storyline/short_term_2020_corona.html');
+            }
 
             resetMap();
             updateMapColors(mapColors.EMPTY);
 
-            lastProgramState = programStates.SHORT_TERM.SPECIFIC;
+            currentProgramState = programStates.SHORT_TERM.SPECIFIC;
         } else if (factor.val() === 'voter-turnout') {
             $storyline.loadTemplate('templates/storyline/short_term_voterturnout.html');
 
             updateMap(programStates.SHORT_TERM.VOTER_TURNOUT);
             updateMapColors(mapColors.ELECTION_RESULTS);
 
-            lastProgramState = programStates.SHORT_TERM.VOTER_TURNOUT;
+            currentProgramState = programStates.SHORT_TERM.VOTER_TURNOUT;
         } else {
             throw Error('Unexpected value for short term factor: ' + factor.val());
         }
@@ -177,7 +212,9 @@ function resetContentChangers() {
     $('#subnav-container input').prop('checked', false);
 }
 
-// Select the elements needed for the map, and set their children and attributes
+/**
+ * Select the elements needed for the map, and set their children and attributes
+ */
 let $map = d3.select('#map'),
     $layer = $map.append('g')
         .attr('id', 'layer'),
@@ -197,7 +234,9 @@ let numberFormat = new Intl.NumberFormat('en-NL', {
         maximumFractionDigits: 2
     });
 
-// Prepare cartogram variables
+/**
+ * Cartogram-related variables
+ */
 let topology,
     geometries,
     dataByState,
@@ -215,10 +254,12 @@ let topology,
                     '2012': {
                         winnerParty: dataByState[stateName]['election_results']['2012']['winner_party'],
                         winnerPercentage: dataByState[stateName]['election_results']['2012']['winner_percentage'],
+                        voterTurnout: dataByState[stateName]['election_results']['2012']['turnout'],
                     },
                     '2016': {
                         winnerParty: dataByState[stateName]['election_results']['2016']['winner_party'],
                         winnerPercentage: dataByState[stateName]['election_results']['2016']['winner_percentage'],
+                        voterTurnout: dataByState[stateName]['election_results']['2016']['turnout'],
                     },
                     '2020': {
                         winnerParty: dataByState[stateName]['election_results']['2020']['winner_party'],
@@ -376,7 +417,7 @@ function updateMapColors(palette) {
      * cannot smoothly be transitioned from.
      * If last state was complex then don't have a transition but just change the colors immediately.
      */
-    if (!specialColorProgramStates.includes(lastProgramState)) {
+    if (!specialColorProgramStates.includes(currentProgramState)) {
         transition
             .duration(750)
             .ease('linear');
@@ -477,6 +518,7 @@ function updateMapColors(palette) {
         let hispanic = [149, 91, 69];
         let native = [134, 49, 45];
 
+        // Function which combines the colors for all races. It assumes that the percentages sum up to 1
         let scale = function (d) {
             let red = d.properties.race.white * white[0] + d.properties.race.black * black[0]
                 + d.properties.race.asian * asian[0] + d.properties.race.hispanic * hispanic[0]
@@ -565,11 +607,6 @@ function updateMap(programState) {
     } else if (programState === programStates.SHORT_TERM.VOTER_TURNOUT) {
         let year = $yearSelector.val();
 
-        // TODO: Remove this check once voter turnout data is added for other years
-        if (year !== '2020') {
-            throw Error('There is no data for voter turnout other than for the year 2020');
-        }
-
         objPath = `properties.electionResults.${year}.voterTurnout`;
     } else if (programState === programStates.LONG_TERM.SOCIAL_CLASS) {
         objPath = 'properties.socialClass.impact';
@@ -638,7 +675,7 @@ function showTooltip(d, id, data) {
         if (factor.val() === 'voter-turnout') {
             tooltip.loadTemplate('templates/tooltip/short_term_voter_turnout.html', {
                     stateName: d.properties.name,
-                    voterTurnout: year === '2020' ? percentageFormat.format(d.properties.electionResults[year].voterTurnout) : 'MISSING DATA',
+                    voterTurnout: percentageFormat.format(d.properties.electionResults[year].voterTurnout),
                 });
         }
     } else if (factorType.val() === 'long-term') {
@@ -721,12 +758,212 @@ function hideTooltip(d, id) {
     tooltip.addClass('hidden');
 }
 
-/*
-function zoomIn() {
+/**
+ * Functions related to controlling the story feature
+ */
+let storyTimerHandle;
+let $storyStoppedGroup = $('#story-stopped-group');
+let $storyPlayingGroup = $('#story-playing-group');
+let $storyToggleButtonIcon = $('#story-toggle span');
 
+function Timer(callback, delay) {
+    let id, started, remaining = delay, running;
+
+    this.start = function() {
+        running = true;
+
+        started = new Date();
+
+        let self = this;
+        id = setTimeout(function() {
+            callback();
+            self.restart();
+        }, remaining);
+    }
+
+    this.pause = function() {
+        running = false;
+        remaining -= new Date() - started;
+
+        clearTimeout(id);
+    }
+
+    this.restart = function() {
+        remaining = delay;
+
+        this.start();
+    }
+
+    this.isRunning = function() {
+        return running;
+    }
+
+    this.start();
 }
 
-function zoomOut() {
+/**
+ * When called jumps to the next story step. Currently displayed step is read from the lastProgramState variable.
+ *
+ * The steps are:
+ * 1. 2012 Normal
+ * 2. 2016 Normal
+ * 3. 2020 Normal
+ * 4. 2020 Electoral Votes
+ * 5. 2020 Social Class
+ * 6. 2020 Race
+ * 7. 2020 Sex
+ * 8. 2012 Special
+ * 9. 2016 Special
+ * 10. 2020 Special (Coronavirus)
+ * 11. 2016 Voter Turnout
+ * 12. 2012 Voter Turnout
+ * 13. 2020 Voter Turnout
+ *
+ * @return null
+ */
+function storyStep() {
+    let year = $yearSelector.val();
 
+    if (currentProgramState === programStates.DEFAULT && year !== '2020') {
+        if (year === 'default' || year === null) {
+            // 1
+            console.log('1');
+            $yearSelector.val('2012').trigger('change');
+
+            $normalMapSelectLabel.trigger('click');
+            $normalMapSelect.trigger('click');
+        } else if (year === '2012') {
+            // 2
+            console.log('2');
+            $yearSelector.val('2016').trigger('change');
+
+            $normalMapSelectLabel.trigger('click');
+            $normalMapSelect.trigger('click');
+        } else if (year === '2016') {
+            // 3
+            console.log('3');
+            $yearSelector.val('2020').trigger('change');
+
+            $normalMapSelectLabel.trigger('click');
+            $normalMapSelect.trigger('click');
+        }
+    } else if (currentProgramState === programStates.DEFAULT && year === '2020') {
+        // 4
+        console.log('4');
+        $electoralCollegeSelectLabel.trigger('click');
+        $electoralCollegeSelect.trigger('click');
+    } else if (currentProgramState === programStates.ELECTORAL_COLLEGE) {
+        // 5
+        console.log('5');
+        $longTermSelectLabel.trigger('click');
+        $longTermSelect.trigger('click');
+
+        $('#lt-social-class-label').trigger('click');
+        $('#lt-social-class').trigger('click');
+    } else if (currentProgramState === programStates.LONG_TERM.SOCIAL_CLASS) {
+        // 6
+        console.log('6');
+        $longTermSelectLabel.trigger('click');
+        $longTermSelect.trigger('click');
+
+        $('#lt-race-label').trigger('click');
+        $('#lt-race').trigger('click');
+    } else if (currentProgramState === programStates.LONG_TERM.RACE) {
+        // 7
+        console.log('7');
+        $longTermSelectLabel.trigger('click');
+        $longTermSelect.trigger('click');
+
+        $('#lt-sex-label').trigger('click');
+        $('#lt-sex').trigger('click');
+    } else if (currentProgramState === programStates.LONG_TERM.SEX) {
+        // 8
+        console.log('8');
+        $yearSelector.val('2012').trigger('change');
+
+        $shortTermSelectLabel.trigger('click');
+        $shortTermSelect.trigger('click');
+
+        $('#st-special-label').trigger('click');
+        $('#st-special').trigger('click');
+    } else if (currentProgramState === programStates.SHORT_TERM.SPECIFIC && year === '2012') {
+        // 9
+        console.log('9');
+        $yearSelector.val('2016').trigger('change');
+
+        $shortTermSelectLabel.trigger('click');
+        $shortTermSelect.trigger('click');
+
+        $('#st-special-label').trigger('click');
+        $('#st-special').trigger('click');
+    } else if (currentProgramState === programStates.SHORT_TERM.SPECIFIC && year === '2016') {
+        // 10
+        console.log('10');
+        $yearSelector.val('2020').trigger('change');
+
+        $shortTermSelectLabel.trigger('click');
+        $shortTermSelect.trigger('click');
+
+        $('#st-special-label').trigger('click');
+        $('#st-special').trigger('click');
+    } else if (currentProgramState === programStates.SHORT_TERM.SPECIFIC && year === '2020') {
+        // 11
+        console.log('11');
+        $yearSelector.val('2012').trigger('change');
+
+        $shortTermSelect.trigger('click');
+
+        $('#st-voter-turnout-label').trigger('click');
+        $('#st-voter-turnout').trigger('click');
+    } else if (currentProgramState === programStates.SHORT_TERM.VOTER_TURNOUT && year === '2012') {
+        // 12
+        console.log('12');
+        $yearSelector.val('2016').trigger('change');
+
+        $shortTermSelect.trigger('click');
+
+        $('#st-voter-turnout-label').trigger('click');
+        $('#st-voter-turnout').trigger('click');
+    } else if (currentProgramState === programStates.SHORT_TERM.VOTER_TURNOUT && year === '2016') {
+        // 13
+        console.log('13');
+        $yearSelector.val('2020').trigger('change');
+
+        $shortTermSelect.trigger('click');
+
+        $('#st-voter-turnout-label').trigger('click');
+        $('#st-voter-turnout').trigger('click');
+    }
 }
-*/
+
+function storyStart() {
+    $storyStoppedGroup.addClass('hidden');
+    $storyPlayingGroup.removeClass('hidden');
+
+    storyStep(); // Make the first step
+
+    storyTimerHandle = new Timer(storyStep, 3000);
+}
+
+function storyToggle() {
+    if (storyTimerHandle.isRunning()) {
+        // Story is playing, pause it
+        storyTimerHandle.pause();
+
+        $storyToggleButtonIcon.removeClass('fa-pause');
+        $storyToggleButtonIcon.addClass('fa-play');
+    } else {
+        // Story is paused, play it
+        storyTimerHandle.start();
+
+        $storyToggleButtonIcon.removeClass('fa-play');
+        $storyToggleButtonIcon.addClass('fa-pause');
+    }
+}
+
+function storyStop() {
+    $storyStoppedGroup.removeClass('hidden');
+    $storyPlayingGroup.addClass('hidden');
+
+    storyTimerHandle.pause();
+}
