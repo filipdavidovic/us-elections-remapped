@@ -180,9 +180,11 @@ function resetContentChangers() {
 let $map = d3.select('#map'),
     $layer = $map.append('g')
         .attr('id', 'layer'),
-    states = $layer.append('g')
+    $states = $layer.append('g')
         .attr('id', 'states')
-        .selectAll('path');
+        .selectAll('path'),
+    $legend = d3.select('#legend')
+        .append('g');
 let tooltip = $('#tooltip');
 let numberFormat = new Intl.NumberFormat('en-NL', {
         minimumFractionDigits: 2,
@@ -315,7 +317,7 @@ function updateElectionResultsIndicator() {
 
 function clearMap() {
     $('#states').remove();
-    states = $layer.append('g')
+    $states = $layer.append('g')
         .attr('id', 'states')
         .selectAll('path');
 }
@@ -358,9 +360,14 @@ function createSvgGradient(svg, id, stops) {
 }
 
 function updateMapColors(palette) {
-    let transition = states.transition()
+    let transition = $states.transition()
         .delay(750);  // Wait for the map warping to finish
 
+    /**
+     * Enable smooth transitions with complex program states. Complex program states use special SVG coloring which
+     * cannot smoothly be transitioned from.
+     * If last state was complex then don't have a transition but just change the colors immediately.
+     */
     if (!specialColorProgramStates.includes(lastProgramState)) {
         transition
             .duration(750)
@@ -369,6 +376,9 @@ function updateMapColors(palette) {
         transition
             .duration(0);
     }
+
+    // Remove legend (specific palettes will add it if needed)
+    $legend.selectAll('*').remove(); // https://webkid.io/blog/replacing-jquery-with-d3/#empty
 
     if (palette === mapColors.EMPTY) {
         transition.attr('fill', '#fafafa');
@@ -384,6 +394,16 @@ function updateMapColors(palette) {
                     throw Error(`Unrecognized winner party "${d.properties.winnerParty}"`);
                 }
             });
+
+        // Update legend
+        let scale = d3.scale.ordinal()
+            .domain(['DEM', 'REP'])
+            .range(['rgb(26, 106, 255)', 'rgb(255, 74, 67)']);
+        let legendOrdinal = d3.legend.color()
+            .shapeWidth(70)
+            .orient('horizontal')
+            .scale(scale);
+        $legend.call(legendOrdinal);
     } else if (palette === mapColors.SEX) {
         let gradients = $('svg#gradients');
 
@@ -409,8 +429,18 @@ function updateMapColors(palette) {
 
                 return `url(#${id})`;
             });
+
+        // Update legend
+        let scale = d3.scale.ordinal()
+            .domain(['Female', 'Male'])
+            .range(['rgb(255,182,193)', 'rgb(135,206,250)']);
+        let legendOrdinal = d3.legend.color()
+            .shapeWidth(70)
+            .orient('horizontal')
+            .scale(scale);
+        $legend.call(legendOrdinal);
     } else if (palette === mapColors.SOCIAL_CLASS) {
-        let values = states.data()
+        let values = $states.data()
             .map((d) => d.properties.socialClass.score)
             .filter((n) => !isNaN(n))
             .sort(d3.ascending)
@@ -424,6 +454,14 @@ function updateMapColors(palette) {
         transition.attr('fill', function(d) {
             return scale(d.properties.socialClass.score);
         });
+
+        // Update legend
+        let legendLinear = d3.legend.color()
+            .shapeWidth(40)
+            .labelFormat(d3.format(".2f"))
+            .orient('horizontal')
+            .scale(scale);
+        $legend.call(legendLinear);
     } else {
         throw Error(`Unrecognized map color palette "${palette}"`);
     }
@@ -462,14 +500,14 @@ function initMap() {
     let path = d3.geo.path().projection(proj);
 
     // Put the features on the map
-    states = states.data(features)
+    $states = $states.data(features)
         .enter().append('path')
         .attr('id', (d) => d.properties.name)
         .attr('d', path)
         .attr('class', 'state')
         .attr('fill', '#fafafa');
 
-    states
+    $states
         .on('mousemove', showTooltip)
         .on('mouseout', hideTooltip);
 }
@@ -498,7 +536,7 @@ function updateMap(programState) {
         throw Error(`Map updates are not supported for program state "${programState}"`);
     }
 
-    let values = states.data()
+    let values = $states.data()
         .map((d) => Object.byString(d, objPath))
         .filter((n) => !isNaN(n))
         .sort(d3.ascending)
@@ -512,8 +550,8 @@ function updateMap(programState) {
 
     let features = carto(topology, geometries).features;
 
-    states.data(features);
-    states.transition()
+    $states.data(features);
+    $states.transition()
         .duration(750)
         .ease('linear')
         .attr('d', carto.path);
@@ -526,8 +564,8 @@ function resetMap() {
     let features = carto.features(topology, geometries);
     let path = d3.geo.path().projection(proj);
 
-    states.data(features);
-    states.transition()
+    $states.data(features);
+    $states.transition()
         .duration(750)
         .ease('linear')
         .attr('d', path);

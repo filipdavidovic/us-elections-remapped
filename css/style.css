@@ -180,10 +180,6 @@ img.profile {
     height: 100%;
 }
 
-#layer {
-    transform: scale(0.94);
-}
-
 path.state {
     stroke: #555;
     stroke-width: 1.5;
