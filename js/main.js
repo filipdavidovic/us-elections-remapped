@@ -6,6 +6,7 @@ const mapColors = {
     ELECTION_RESULTS: 'election-results',
     SEX: 'sex',
     SOCIAL_CLASS: 'social-class',
+    RACE: 'race',
 };
 
 const programStates = {
@@ -126,7 +127,7 @@ function setContent() {
             $storyline.loadTemplate('templates/storyline/long_term_race.html');
 
             resetMap();
-            updateMapColors(mapColors.EMPTY);
+            updateMapColors(mapColors.RACE);
 
             lastProgramState = programStates.LONG_TERM.RACE;
         } else if (factor.val() === 'sex') {
@@ -187,7 +188,7 @@ let $map = d3.select('#map'),
         .append('g');
 let tooltip = $('#tooltip');
 let numberFormat = new Intl.NumberFormat('en-NL', {
-        minimumFractionDigits: 2,
+        minimumFractionDigits: 0,
         maximumFractionDigits: 2
     }),
     percentageFormat = new Intl.NumberFormat('en-NL', {
@@ -232,7 +233,14 @@ let topology,
                 socialClass: {
                     score: dataByState[stateName]['social_class']['score'],
                     impact: dataByState[stateName]['social_class']['impact'],
-                }
+                },
+                race: {
+                    white: dataByState[stateName]['race']['white'],
+                    black: dataByState[stateName]['race']['black'],
+                    asian: dataByState[stateName]['race']['asian'],
+                    hispanic: dataByState[stateName]['race']['hispanic'],
+                    native: dataByState[stateName]['race']['native'],
+                },
             };
         });
 
@@ -462,6 +470,39 @@ function updateMapColors(palette) {
             .orient('horizontal')
             .scale(scale);
         $legend.call(legendLinear);
+    } else if (palette === mapColors.RACE) {
+        let white = [253, 231, 214];
+        let black = [59, 45, 52];
+        let asian = [245, 211, 101];
+        let hispanic = [149, 91, 69];
+        let native = [134, 49, 45];
+
+        let scale = function (d) {
+            let red = d.properties.race.white * white[0] + d.properties.race.black * black[0]
+                + d.properties.race.asian * asian[0] + d.properties.race.hispanic * hispanic[0]
+                + d.properties.race.native * native[0];
+            let green = d.properties.race.white * white[1] + d.properties.race.black * black[1]
+                + d.properties.race.asian * asian[1] + d.properties.race.hispanic * hispanic[1]
+                + d.properties.race.native * native[1];
+            let blue = d.properties.race.white * white[2] + d.properties.race.black * black[2]
+                + d.properties.race.asian * asian[2] + d.properties.race.hispanic * hispanic[2]
+                + d.properties.race.native * native[2];
+
+            return `rgb(${red}, ${green}, ${blue})`;
+        }
+
+        transition.attr('fill', function(d) {
+            return scale(d);
+        });
+
+        let ord = d3.scale.ordinal()
+            .domain(['White', 'Black', 'Asian', 'Hispanic', 'Native'])
+            .range([`rgb(${white.join(',')})`, `rgb(${black.join(',')})`, `rgb(${asian.join(',')})`, `rgb(${hispanic.join(',')})`, `rgb(${native.join(',')})`]);
+        let legendOrdinal = d3.legend.color()
+            .shapeWidth(70)
+            .orient('horizontal')
+            .scale(ord);
+        $legend.call(legendOrdinal);
     } else {
         throw Error(`Unrecognized map color palette "${palette}"`);
     }
@@ -623,11 +664,16 @@ function showTooltip(d, id, data) {
                 socialClassImpact: numberFormat.format(d.properties.socialClass.impact),
             });
         } else if (factor.val() === 'race') {
-            tooltip.loadTemplate('templates/tooltip/long_term.html', {
-
-                    stateName: d.properties.name,
-
-                });
+            tooltip.loadTemplate('templates/tooltip/long_term_race.html', {
+                stateName: d.properties.name,
+                partyIndicatorClass: partyIndicatorClass,
+                population: numberFormat.format(d.properties.totalPopulation),
+                whitePercentage: percentageFormat.format(d.properties.race.white),
+                blackPercentage: percentageFormat.format(d.properties.race.black),
+                asianPercentage: percentageFormat.format(d.properties.race.asian),
+                hispanicPercentage: percentageFormat.format(d.properties.race.hispanic),
+                nativePercentage: percentageFormat.format(d.properties.race.native),
+            });
         } else if (factor.val() === 'sex') {
             tooltip.loadTemplate('templates/tooltip/long_term_sex.html', {
                 stateName: d.properties.name,
