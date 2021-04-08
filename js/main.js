@@ -223,7 +223,8 @@ let $map = d3.select('#map'),
         .selectAll('path'),
     $legend = d3.select('#legend')
         .append('g');
-let tooltip = $('#tooltip');
+let tooltip = $('#tooltip'),
+    $stateModal = $('#stateModal');
 let numberFormat = new Intl.NumberFormat('en-NL', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 2
@@ -326,7 +327,7 @@ function preloadContent() {
     }
 }
 
-d3.json('data/usa.topojson', function(topo) {
+d3.json('data/maps/usa.topojson', function(topo) {
     d3.json('data/by_state.json', function(data) {
         dataByState = data;
 
@@ -592,7 +593,8 @@ function initMap() {
 
     $states
         .on('mousemove', showTooltip)
-        .on('mouseout', hideTooltip);
+        .on('mouseout', hideTooltip)
+        .on('click', showStatePopup);
 }
 
 /**
@@ -647,6 +649,65 @@ function resetMap() {
         .duration(750)
         .ease('linear')
         .attr('d', path);
+}
+
+function showStatePopup(d) {
+    // Populate the modal with contents
+    $stateModal.loadTemplate('templates/state_popup.html', {
+        stateName: d.properties.name,
+        electoralVotes: d.properties.electoralVotes,
+        population: numberFormat.format(d.properties.totalPopulation),
+        flagImg: `https://www.states101.com/img/flags/svg/${d.properties.name.replace(/\s/g, '-').toLowerCase()}.svg`,
+        socialClassScore: numberFormat.format(d.properties.socialClass.score),
+        socialClassImpact: numberFormat.format(d.properties.socialClass.impact),
+        whitePercentage: percentageFormat.format(d.properties.race.white),
+        blackPercentage: percentageFormat.format(d.properties.race.black),
+        asianPercentage: percentageFormat.format(d.properties.race.asian),
+        hispanicPercentage: percentageFormat.format(d.properties.race.hispanic),
+        nativePercentage: percentageFormat.format(d.properties.race.native),
+        womenPercentage: percentageFormat.format(d.properties.womenPercentage),
+        menPercentage: percentageFormat.format(d.properties.menPercentage),
+    }, {
+        complete: function() {
+            // Show the modal
+            $stateModal.modal();
+
+            // Draw the state map
+            let state = topojson.feature(topology, topology.objects.states).features.filter((s) => s.id === d.properties.name)[0];
+            let projection = d3.geo.albers().scale(1).translate([0, 0]);
+            let path = d3.geo.path().projection(projection);
+
+            let $stateMap = $('#stateMap');
+            let width = $stateMap.width(),
+                height = $stateMap.height();
+            let b = path.bounds(state),
+                s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
+                t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
+
+            projection.scale(s)
+                .translate(t);
+
+            $stateMap = d3.select('#stateMap');  // We need to use the d3 object instead of jQuery
+
+            $stateMap.append('path')
+                .datum(state)
+                .attr('class', 'state')
+                .attr('d', path)
+                .attr('id', 'land')
+                .attr('fill', '#fafafa');
+
+            $stateMap.append('clipPath')
+                .attr('id', 'clip-land')
+                .append('use')
+                .attr('xlink:href', '#land')
+        }
+    });
+}
+
+function hideStatePopup() {
+    $stateModal.modal('hide');
+
+    $stateModal.empty();
 }
 
 /**
@@ -749,9 +810,8 @@ function showTooltip(d, id, data) {
  * Hide the tooltip.
  *
  * @param d - The feature
- * @param id - ID of the feature
  */
-function hideTooltip(d, id) {
+function hideTooltip(d) {
     // Remove highlight around the state
     $(this).css('stroke-width', '1.5');
 

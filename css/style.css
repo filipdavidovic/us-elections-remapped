@@ -212,6 +212,10 @@ path.state {
     height: 10px;
 }
 
+.modal-body-heading {
+    margin-top: 0.5em;
+}
+
 .zoom {
     position: absolute !important;
     top: 33vw;
@@ -225,6 +229,7 @@ path.state {
     -o-animation: fadeIn ease 0.75s;
     -ms-animation: fadeIn ease 0.75s;
 }
+
 @keyframes fadeIn {
     0% {opacity:0;}
     100% {opacity:1;}
