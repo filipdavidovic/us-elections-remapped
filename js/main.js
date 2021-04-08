@@ -327,7 +327,7 @@ function preloadContent() {
     }
 }
 
-d3.json('data/maps/usa.topojson', function(topo) {
+d3.json('data/usa.topojson', function(topo) {
     d3.json('data/by_state.json', function(data) {
         dataByState = data;
 
