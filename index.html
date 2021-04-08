@@ -166,7 +166,58 @@
 
     <div id="tooltip" class="hidden"></div>
 
-    <div id="stateModal" class="modal" tabindex="-1" role="dialog"></div>
+    <div id="stateModal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalStateName"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <img id="modalFlagImg" style="width: 100%; margin: auto; display: block;">
+
+                            <svg id="stateMap" style="width: 100%; height: 15em; margin-top: 1em;"></svg>
+                        </div>
+
+                        <div class="col-4">
+                            <h5 class="modal-body-heading">General</h5>
+                            <span>Population: <span id="modalPopulation"></span></span>
+                            <br>
+                            <span>Electoral Votes: <span id="modalElectoralVotes"></span></span>
+
+                            <h5 class="modal-body-heading">Social Class</h5>
+                            <span>Social Class Score: <span id="modalSocialClassScore"></span></span>
+                            <br>
+                            <span>Social Class Impact: <span id="modalSocialClassImpact"></span></span>
+
+                            <h5 class="modal-body-heading">Sex</h5>
+                            <span><span style="color: rgb(255,182,193);">Women</span> Percentage: <span id="modalWomenPercentage"></span></span>
+                            <br>
+                            <span><span style="color: rgb(135,206,250);">Men</span> Percentage: <span id="modalMenPercentage"></span></span>
+                        </div>
+
+                        <div class="col-4">
+                            <h5 class="modal-body-heading">Race</h5>
+                            <span><span style="color: rgb(253,231,214);">White</span> Percentage: <span id="modalWhitePercentage"></span></span>
+                            <br>
+                            <span><span style="color: rgb(59,45,52);">Black</span> Percentage: <span id="modalBlackPercentage"></span></span>
+                            <br>
+                            <span><span style="color: rgb(245,211,101);">Asian</span> Percentage: <span id="modalAsianPercentage"></span></span>
+                            <br>
+                            <span><span style="color: rgb(149,91,69);">Hispanic</span> Percentage: <span id="modalHispanicPercentage"></span></span>
+                            <br>
+                            <span><span style="color: rgb(134,49,45);">Native</span> Percentage: <span id="modalNativePercentage"></span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="js/main.js"></script>
 </body>

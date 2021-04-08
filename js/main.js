@@ -653,61 +653,52 @@ function resetMap() {
 
 function showStatePopup(d) {
     // Populate the modal with contents
-    $stateModal.loadTemplate('templates/state_popup.html', {
-        stateName: d.properties.name,
-        electoralVotes: d.properties.electoralVotes,
-        population: numberFormat.format(d.properties.totalPopulation),
-        flagImg: `https://www.states101.com/img/flags/svg/${d.properties.name.replace(/\s/g, '-').toLowerCase()}.svg`,
-        socialClassScore: numberFormat.format(d.properties.socialClass.score),
-        socialClassImpact: numberFormat.format(d.properties.socialClass.impact),
-        whitePercentage: percentageFormat.format(d.properties.race.white),
-        blackPercentage: percentageFormat.format(d.properties.race.black),
-        asianPercentage: percentageFormat.format(d.properties.race.asian),
-        hispanicPercentage: percentageFormat.format(d.properties.race.hispanic),
-        nativePercentage: percentageFormat.format(d.properties.race.native),
-        womenPercentage: percentageFormat.format(d.properties.womenPercentage),
-        menPercentage: percentageFormat.format(d.properties.menPercentage),
-    }, {
-        complete: function() {
-            // Show the modal
-            $stateModal.modal();
+    $('#modalFlagImg').attr('src', `https://www.states101.com/img/flags/svg/${d.properties.name.replace(/\s/g, '-').toLowerCase()}.svg`)
+    $('#modalStateName').text(d.properties.name);
+    $('#modalElectoralVotes').text(d.properties.electoralVotes);
+    $('#modalPopulation').text(d.properties.population);
+    $('#modalSocialClassScore').text(d.properties.socialClass.score);
+    $('#modalSocialClassImpact').text(d.properties.socialClass.impact);
+    $('#modalWhitePercentage').text(d.properties.race.white);
+    $('#modalBlackPercentage').text(d.properties.race.black);
+    $('#modalAsianPercentage').text(d.properties.race.asian);
+    $('#modalHispanicPercentage').text(d.properties.race.hispanic);
+    $('#modalNativePercentage').text(d.properties.race.native);
+    $('#modalWomenPercentage').text(d.properties.womenPercentage);
+    $('#modalMenPercentage').text(d.properties.menPercentage);
 
-            // Draw the state map
-            let state = topojson.feature(topology, topology.objects.states).features.filter((s) => s.id === d.properties.name)[0];
-            let projection = d3.geo.albers().scale(1).translate([0, 0]);
-            let path = d3.geo.path().projection(projection);
+    // Show the modal (we need to show the modal first before we can draw the map because .width() and .height() don't work for elements with style.display == none)
+    $stateModal.modal();
 
-            let $stateMap = $('#stateMap');
-            let width = $stateMap.width(),
-                height = $stateMap.height();
-            let b = path.bounds(state),
-                s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
-                t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
+    // Draw the state map
+    let state = topojson.feature(topology, topology.objects.states).features.filter((s) => s.id === d.properties.name)[0];
+    let projection = d3.geo.albers().scale(1).translate([0, 0]);
+    let path = d3.geo.path().projection(projection);
 
-            projection.scale(s)
-                .translate(t);
+    let $stateMap = $('#stateMap');
+    let width = $stateMap.width(),
+        height = $stateMap.height();
+    let b = path.bounds(state),
+        s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
+        t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
 
-            $stateMap = d3.select('#stateMap');  // We need to use the d3 object instead of jQuery
+    projection.scale(s)
+        .translate(t);
 
-            $stateMap.append('path')
-                .datum(state)
-                .attr('class', 'state')
-                .attr('d', path)
-                .attr('id', 'land')
-                .attr('fill', '#fafafa');
+    $stateMap.empty();
+    $stateMap = d3.select('#stateMap');  // We need to use the d3 object instead of jQuery
 
-            $stateMap.append('clipPath')
-                .attr('id', 'clip-land')
-                .append('use')
-                .attr('xlink:href', '#land')
-        }
-    });
-}
+    $stateMap.append('path')
+        .datum(state)
+        .attr('class', 'state')
+        .attr('d', path)
+        .attr('id', 'land')
+        .attr('fill', '#fafafa');
 
-function hideStatePopup() {
-    $stateModal.modal('hide');
-
-    $stateModal.empty();
+    $stateMap.append('clipPath')
+        .attr('id', 'clip-land')
+        .append('use')
+        .attr('xlink:href', '#land');
 }
 
 /**
@@ -787,7 +778,6 @@ function showTooltip(d, id, data) {
                 stateName: d.properties.name,
                 electoralVotes: d.properties.electoralVotes,
                 population: numberFormat.format(d.properties.totalPopulation),
-                flagImg: `https://www.states101.com/img/flags/svg/${d.properties.name.replace(/\s/g, '-').toLowerCase()}.svg`
             });
     }
 
