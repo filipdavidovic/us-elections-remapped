@@ -45,6 +45,7 @@ let $yearSelector = $('#year-selector'),
     $shortTermRow = $('#short-term-row'),
     $longTermRow = $('#long-term-row'),
     $electionResultsBar = $('#election-results-bar');
+$('[data-toggle="tooltip"]').tooltip(); // Enable Bootstrap tooltips
 
 $yearSelector.on('change', function() {
     let selected = $('select option:selected').val();
@@ -656,16 +657,44 @@ function showStatePopup(d) {
     $('#modalFlagImg').attr('src', `https://www.states101.com/img/flags/svg/${d.properties.name.replace(/\s/g, '-').toLowerCase()}.svg`)
     $('#modalStateName').text(d.properties.name);
     $('#modalElectoralVotes').text(d.properties.electoralVotes);
-    $('#modalPopulation').text(d.properties.population);
-    $('#modalSocialClassScore').text(d.properties.socialClass.score);
-    $('#modalSocialClassImpact').text(d.properties.socialClass.impact);
-    $('#modalWhitePercentage').text(d.properties.race.white);
-    $('#modalBlackPercentage').text(d.properties.race.black);
-    $('#modalAsianPercentage').text(d.properties.race.asian);
-    $('#modalHispanicPercentage').text(d.properties.race.hispanic);
-    $('#modalNativePercentage').text(d.properties.race.native);
-    $('#modalWomenPercentage').text(d.properties.womenPercentage);
-    $('#modalMenPercentage').text(d.properties.menPercentage);
+    $('#modalPopulation').text(numberFormat.format(d.properties.totalPopulation));
+    // Social Class
+    $('#modalSocialClassScore').text(numberFormat.format(d.properties.socialClass.score));
+    $('#modalSocialClassImpact').text(numberFormat.format(d.properties.socialClass.impact));
+    // Race
+    $('#modalWhitePercentage').text(percentageFormat.format(d.properties.race.white));
+    $('#modalBlackPercentage').text(percentageFormat.format(d.properties.race.black));
+    $('#modalAsianPercentage').text(percentageFormat.format(d.properties.race.asian));
+    $('#modalHispanicPercentage').text(percentageFormat.format(d.properties.race.hispanic));
+    $('#modalNativePercentage').text(percentageFormat.format(d.properties.race.native));
+    // Sex
+    $('#modalWomenPercentage').text(percentageFormat.format(d.properties.womenPercentage));
+    $('#modalMenPercentage').text(percentageFormat.format(d.properties.menPercentage));
+    // Voter Turnout
+    $('#modalVoterTurnout2012').text(percentageFormat.format(d.properties.electionResults['2012'].voterTurnout));
+    if (d.properties.electionResults['2012'].voterTurnout < dataByState.USA.turnout['2012']) {
+        $('#modalVoterTurnout2012Indicator').attr('class', 'fa fa-arrow-down');
+        $('#modalVoterTurnout2012Indicator').css('color', 'red');
+    } else {
+        $('#modalVoterTurnout2012Indicator').attr('class', 'fa fa-arrow-up');
+        $('#modalVoterTurnout2012Indicator').css('color', 'green');
+    }
+    $('#modalVoterTurnout2016').text(percentageFormat.format(d.properties.electionResults['2016'].voterTurnout));
+    if (d.properties.electionResults['2016'].voterTurnout < dataByState.USA.turnout['2016']) {
+        $('#modalVoterTurnout2016Indicator').attr('class', 'fa fa-arrow-down');
+        $('#modalVoterTurnout2016Indicator').css('color', 'red');
+    } else {
+        $('#modalVoterTurnout2016Indicator').attr('class', 'fa fa-arrow-up');
+        $('#modalVoterTurnout2016Indicator').css('color', 'green');
+    }
+    $('#modalVoterTurnout2020').text(percentageFormat.format(d.properties.electionResults['2020'].voterTurnout));
+    if (d.properties.electionResults['2020'].voterTurnout < dataByState.USA.turnout['2020']) {
+        $('#modalVoterTurnout2020Indicator').attr('class', 'fa fa-arrow-down');
+        $('#modalVoterTurnout2020Indicator').css('color', 'red');
+    } else {
+        $('#modalVoterTurnout2020Indicator').attr('class', 'fa fa-arrow-up');
+        $('#modalVoterTurnout2020Indicator').css('color', 'green');
+    }
 
     // Show the modal (we need to show the modal first before we can draw the map because .width() and .height() don't work for elements with style.display == none)
     $stateModal.modal();

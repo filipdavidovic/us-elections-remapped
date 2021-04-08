@@ -13,6 +13,7 @@
     <script src="https://d3js.org/d3-polygon.v2.min.js"></script>
     <script src="https://schuelerzahlen-zuerich.opendata.iwi.unibe.ch/App2/d3geo-2/lib/topojson.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.loadtemplate/1.5.10/jquery.loadTemplate.min.js" integrity="sha512-T1zx+UG2gXu9mr29wvzaKkNUmAOAie40T32ZPIvcRPJgO5br53+Ocqj8gzguUuix7FK+Z3ncRCJMaZcumnPZzg==" crossorigin="anonymous"></script>
     <script src="js/cartogram.js"></script>
@@ -186,32 +187,58 @@
 
                         <div class="col-4">
                             <h5 class="modal-body-heading">General</h5>
-                            <span>Population: <span id="modalPopulation"></span></span>
-                            <br>
-                            <span>Electoral Votes: <span id="modalElectoralVotes"></span></span>
+                            <p>
+                                Population: <span id="modalPopulation"></span>
+                            </p>
+                            <p>
+                                Electoral Votes: <span id="modalElectoralVotes"></span>
+                            </p>
 
                             <h5 class="modal-body-heading">Social Class</h5>
-                            <span>Social Class Score: <span id="modalSocialClassScore"></span></span>
-                            <br>
-                            <span>Social Class Impact: <span id="modalSocialClassImpact"></span></span>
+                            <p>
+                                Social Class Score: <span id="modalSocialClassScore"></span>
+                            </p>
+                            <p>
+                                Social Class Impact: <span id="modalSocialClassImpact"></span>
+                            </p>
 
                             <h5 class="modal-body-heading">Sex</h5>
-                            <span><span style="color: rgb(255,182,193);">Women</span> Percentage: <span id="modalWomenPercentage"></span></span>
-                            <br>
-                            <span><span style="color: rgb(135,206,250);">Men</span> Percentage: <span id="modalMenPercentage"></span></span>
+                            <p>
+                                <span style="color: rgb(255,182,193);">Women</span> Percentage: <span id="modalWomenPercentage"></span>
+                            </p>
+                            <p>
+                                <span style="color: rgb(135,206,250);">Men</span> Percentage: <span id="modalMenPercentage"></span>
+                            </p>
+
+                            <h5 class="modal-body-heading">Race</h5>
+                            <p>
+                                <span style="color: rgb(253,231,214);">White</span> Percentage: <span id="modalWhitePercentage"></span>
+                            </p>
+                            <p>
+                                <span style="color: rgb(59,45,52);">Black</span> Percentage: <span id="modalBlackPercentage"></span>
+                            </p>
+                            <p>
+                                <span style="color: rgb(245,211,101);">Asian</span> Percentage: <span id="modalAsianPercentage"></span>
+                            </p>
+                            <p>
+                                <span style="color: rgb(149,91,69);">Hispanic</span> Percentage: <span id="modalHispanicPercentage"></span>
+                            </p>
+                            <p>
+                                <span style="color: rgb(134,49,45);">Native</span> Percentage: <span id="modalNativePercentage"></span>
+                            </p>
                         </div>
 
                         <div class="col-4">
-                            <h5 class="modal-body-heading">Race</h5>
-                            <span><span style="color: rgb(253,231,214);">White</span> Percentage: <span id="modalWhitePercentage"></span></span>
-                            <br>
-                            <span><span style="color: rgb(59,45,52);">Black</span> Percentage: <span id="modalBlackPercentage"></span></span>
-                            <br>
-                            <span><span style="color: rgb(245,211,101);">Asian</span> Percentage: <span id="modalAsianPercentage"></span></span>
-                            <br>
-                            <span><span style="color: rgb(149,91,69);">Hispanic</span> Percentage: <span id="modalHispanicPercentage"></span></span>
-                            <br>
-                            <span><span style="color: rgb(134,49,45);">Native</span> Percentage: <span id="modalNativePercentage"></span></span>
+                            <h5 class="modal-body-heading">Voter Turnout <span class="fa fa-info-circle" data-toggle="tooltip" data-placement="top" title="Arrows indicate whether the value is above or below the national average for a year"></span></h5>
+                            <p>
+                                2012: <span id="modalVoterTurnout2012"></span> <span id="modalVoterTurnout2012Indicator"></span>
+                            </p>
+                            <p>
+                                2016: <span id="modalVoterTurnout2016"></span> <span id="modalVoterTurnout2016Indicator"></span>
+                            </p>
+                            <p>
+                                2020: <span id="modalVoterTurnout2020"></span> <span id="modalVoterTurnout2020Indicator"></span>
+                            </p>
                         </div>
                     </div>
                 </div>

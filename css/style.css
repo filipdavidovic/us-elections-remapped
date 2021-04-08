@@ -212,6 +212,10 @@ path.state {
     height: 10px;
 }
 
+.modal p {
+    line-height: 0.6em;
+}
+
 .modal-body-heading {
     margin-top: 0.5em;
 }
