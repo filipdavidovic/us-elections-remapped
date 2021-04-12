@@ -7,6 +7,8 @@ const mapColors = {
     SEX: 'sex',
     SOCIAL_CLASS: 'social-class',
     RACE: 'race',
+    COVID: 'covid',
+    INTERNET_USAGE: 'internet-usage',
 };
 
 const programStates = {
@@ -181,12 +183,22 @@ function setContent() {
 
             currentProgramState = programStates.MID;
         } else if (factor.val() === 'special') {
+            resetMap();
+
             if (year === '2020') {
                 $storyline.loadTemplate('templates/storyline/short_term_2020_corona.html');
+
+                updateMapColors(mapColors.COVID);
+            } else if (year === '2016') {
+                $storyline.loadTemplate('templates/storyline/short_term_2020_corona.html');
+
+                updateMapColors(mapColors.INTERNET_USAGE);
+            } else if (year === '2012') {
+                $storyline.loadTemplate('templates/storyline/short_term_2020_corona.html');
+
+                updateMapColors(mapColors.INTERNET_USAGE);
             }
 
-            resetMap();
-            updateMapColors(mapColors.EMPTY);
 
             currentProgramState = programStates.SHORT_TERM.SPECIFIC;
         } else if (factor.val() === 'voter-turnout') {
@@ -257,16 +269,19 @@ let topology,
                         winnerParty: dataByState[stateName]['election_results']['2012']['winner_party'],
                         winnerPercentage: dataByState[stateName]['election_results']['2012']['winner_percentage'],
                         voterTurnout: dataByState[stateName]['election_results']['2012']['turnout'],
+                        internetUsage: dataByState[stateName]['election_results']['2012']['internet_usage'],
                     },
                     '2016': {
                         winnerParty: dataByState[stateName]['election_results']['2016']['winner_party'],
                         winnerPercentage: dataByState[stateName]['election_results']['2016']['winner_percentage'],
                         voterTurnout: dataByState[stateName]['election_results']['2016']['turnout'],
+                        internetUsage: dataByState[stateName]['election_results']['2016']['internet_usage'],
                     },
                     '2020': {
                         winnerParty: dataByState[stateName]['election_results']['2020']['winner_party'],
                         winnerPercentage: dataByState[stateName]['election_results']['2020']['winner_percentage'],
                         voterTurnout: dataByState[stateName]['election_results']['2020']['turnout'],
+                        covidImpact: dataByState[stateName]['election_results']['2020']['covid_impact'],
                     },
                 },
                 electoralVotes: dataByState[stateName]['electoral_college_votes'],
@@ -547,6 +562,54 @@ function updateMapColors(palette) {
             .orient('horizontal')
             .scale(ord);
         $legend.call(legendOrdinal);
+    } else if (palette === mapColors.COVID) {
+        let values = $states.data()
+            .map((d) => d.properties.electionResults['2020'].covidImpact)
+            .filter((n) => !isNaN(n))
+            .sort(d3.ascending)
+        let lo = values[0];
+        let hi = values[values.length - 1];
+
+        let scale = d3.scale.linear()
+            .domain([lo, hi])
+            .range(['#ffe5e5', '#ff6666']);
+
+        transition.attr('fill', function(d) {
+            return scale(d.properties.electionResults['2020'].covidImpact);
+        });
+
+        // Update legend
+        let legendLinear = d3.legend.color()
+            .shapeWidth(40)
+            .labelFormat(d3.format(".2f"))
+            .orient('horizontal')
+            .scale(scale);
+        $legend.call(legendLinear);
+    } else if (palette === mapColors.INTERNET_USAGE) {
+        let year = $yearSelector.val();
+
+        let values = $states.data()
+            .map((d) => d.properties.electionResults[year].internetUsage)
+            .filter((n) => !isNaN(n))
+            .sort(d3.ascending)
+        let lo = values[0];
+        let hi = values[values.length - 1];
+
+        let scale = d3.scale.linear()
+            .domain([lo, hi])
+            .range(['#d6eaf8', '#2e86c1']);
+
+        transition.attr('fill', function(d) {
+            return scale(d.properties.electionResults[year].internetUsage);
+        });
+
+        // Update legend
+        let legendLinear = d3.legend.color()
+            .shapeWidth(40)
+            .labelFormat(d3.format(".2f"))
+            .orient('horizontal')
+            .scale(scale);
+        $legend.call(legendLinear);
     } else {
         throw Error(`Unrecognized map color palette "${palette}"`);
     }
@@ -652,49 +715,77 @@ function resetMap() {
         .attr('d', path);
 }
 
+/* Popup variables and functions */
+let $modalFlagImg = $('#modalFlagImg');
+let $modalStateName = $('#modalStateName');
+let $modalElectoralVotes = $('#modalElectoralVotes');
+let $modalPopulation = $('#modalPopulation');
+let $modalSocialClassScore = $('#modalSocialClassScore');
+let $modalSocialClassImpact = $('#modalSocialClassImpact');
+let $modalWhitePercentage = $('#modalWhitePercentage');
+let $modalBlackPercentage = $('#modalBlackPercentage');
+let $modalAsianPercentage = $('#modalAsianPercentage');
+let $modalHispanicPercentage = $('#modalHispanicPercentage');
+let $modalNativePercentage = $('#modalNativePercentage');
+let $modalWomenPercentage = $('#modalWomenPercentage');
+let $modalMenPercentage = $('#modalMenPercentage');
+let $modalVoterTurnout2012 = $('#modalVoterTurnout2012');
+let $modalVoterTurnout2012Indicator = $('#modalVoterTurnout2012Indicator');
+let $modalVoterTurnout2016 = $('#modalVoterTurnout2016');
+let $modalVoterTurnout2016Indicator = $('#modalVoterTurnout2016Indicator');
+let $modalVoterTurnout2020 = $('#modalVoterTurnout2020');
+let $modalVoterTurnout2020Indicator = $('#modalVoterTurnout2020Indicator');
+let $modalInternetUsage2012 = $('#modalInternetUsage2012');
+let $modalInternetUsage2016 = $('#modalInternetUsage2016');
+let $modalCovidImpact = $('#modalCovidImpact');
+
 function showStatePopup(d) {
     // Populate the modal with contents
-    $('#modalFlagImg').attr('src', `https://www.states101.com/img/flags/svg/${d.properties.name.replace(/\s/g, '-').toLowerCase()}.svg`)
-    $('#modalStateName').text(d.properties.name);
-    $('#modalElectoralVotes').text(d.properties.electoralVotes);
-    $('#modalPopulation').text(numberFormat.format(d.properties.totalPopulation));
+    $modalFlagImg.attr('src', `https://www.states101.com/img/flags/svg/${d.properties.name.replace(/\s/g, '-').toLowerCase()}.svg`)
+    $modalStateName.text(d.properties.name);
+    $modalElectoralVotes.text(d.properties.electoralVotes);
+    $modalPopulation.text(numberFormat.format(d.properties.totalPopulation));
     // Social Class
-    $('#modalSocialClassScore').text(numberFormat.format(d.properties.socialClass.score));
-    $('#modalSocialClassImpact').text(numberFormat.format(d.properties.socialClass.impact));
+    $modalSocialClassScore.text(numberFormat.format(d.properties.socialClass.score));
+    $modalSocialClassImpact.text(numberFormat.format(d.properties.socialClass.impact));
     // Race
-    $('#modalWhitePercentage').text(percentageFormat.format(d.properties.race.white));
-    $('#modalBlackPercentage').text(percentageFormat.format(d.properties.race.black));
-    $('#modalAsianPercentage').text(percentageFormat.format(d.properties.race.asian));
-    $('#modalHispanicPercentage').text(percentageFormat.format(d.properties.race.hispanic));
-    $('#modalNativePercentage').text(percentageFormat.format(d.properties.race.native));
+    $modalWhitePercentage.text(percentageFormat.format(d.properties.race.white));
+    $modalBlackPercentage.text(percentageFormat.format(d.properties.race.black));
+    $modalAsianPercentage.text(percentageFormat.format(d.properties.race.asian));
+    $modalHispanicPercentage.text(percentageFormat.format(d.properties.race.hispanic));
+    $modalNativePercentage.text(percentageFormat.format(d.properties.race.native));
     // Sex
-    $('#modalWomenPercentage').text(percentageFormat.format(d.properties.womenPercentage));
-    $('#modalMenPercentage').text(percentageFormat.format(d.properties.menPercentage));
+    $modalWomenPercentage.text(percentageFormat.format(d.properties.womenPercentage));
+    $modalMenPercentage.text(percentageFormat.format(d.properties.menPercentage));
     // Voter Turnout
-    $('#modalVoterTurnout2012').text(percentageFormat.format(d.properties.electionResults['2012'].voterTurnout));
+    $modalVoterTurnout2012.text(percentageFormat.format(d.properties.electionResults['2012'].voterTurnout));
     if (d.properties.electionResults['2012'].voterTurnout < dataByState.USA.turnout['2012']) {
-        $('#modalVoterTurnout2012Indicator').attr('class', 'fa fa-arrow-down');
-        $('#modalVoterTurnout2012Indicator').css('color', 'red');
+        $modalVoterTurnout2012Indicator.attr('class', 'fa fa-arrow-down');
+        $modalVoterTurnout2012Indicator.css('color', 'red');
     } else {
-        $('#modalVoterTurnout2012Indicator').attr('class', 'fa fa-arrow-up');
-        $('#modalVoterTurnout2012Indicator').css('color', 'green');
+        $modalVoterTurnout2012Indicator.attr('class', 'fa fa-arrow-up');
+        $modalVoterTurnout2012Indicator.css('color', 'green');
     }
-    $('#modalVoterTurnout2016').text(percentageFormat.format(d.properties.electionResults['2016'].voterTurnout));
+    $modalVoterTurnout2016.text(percentageFormat.format(d.properties.electionResults['2016'].voterTurnout));
     if (d.properties.electionResults['2016'].voterTurnout < dataByState.USA.turnout['2016']) {
-        $('#modalVoterTurnout2016Indicator').attr('class', 'fa fa-arrow-down');
-        $('#modalVoterTurnout2016Indicator').css('color', 'red');
+        $modalVoterTurnout2016Indicator.attr('class', 'fa fa-arrow-down');
+        $modalVoterTurnout2016Indicator.css('color', 'red');
     } else {
-        $('#modalVoterTurnout2016Indicator').attr('class', 'fa fa-arrow-up');
-        $('#modalVoterTurnout2016Indicator').css('color', 'green');
+        $modalVoterTurnout2016Indicator.attr('class', 'fa fa-arrow-up');
+        $modalVoterTurnout2016Indicator.css('color', 'green');
     }
-    $('#modalVoterTurnout2020').text(percentageFormat.format(d.properties.electionResults['2020'].voterTurnout));
+    $modalVoterTurnout2020.text(percentageFormat.format(d.properties.electionResults['2020'].voterTurnout));
     if (d.properties.electionResults['2020'].voterTurnout < dataByState.USA.turnout['2020']) {
-        $('#modalVoterTurnout2020Indicator').attr('class', 'fa fa-arrow-down');
-        $('#modalVoterTurnout2020Indicator').css('color', 'red');
+        $modalVoterTurnout2020Indicator.attr('class', 'fa fa-arrow-down');
+        $modalVoterTurnout2020Indicator.css('color', 'red');
     } else {
-        $('#modalVoterTurnout2020Indicator').attr('class', 'fa fa-arrow-up');
-        $('#modalVoterTurnout2020Indicator').css('color', 'green');
+        $modalVoterTurnout2020Indicator.attr('class', 'fa fa-arrow-up');
+        $modalVoterTurnout2020Indicator.css('color', 'green');
     }
+    // Special short-term factor
+    $modalInternetUsage2012.text(percentageFormat.format(d.properties.electionResults['2012'].internetUsage));
+    $modalInternetUsage2016.text(percentageFormat.format(d.properties.electionResults['2016'].internetUsage))
+    $modalCovidImpact.text(d.properties.electionResults['2020'].covidImpact);
 
     // Show the modal (we need to show the modal first before we can draw the map because .width() and .height() don't work for elements with style.display == none)
     $stateModal.modal();
@@ -751,13 +842,37 @@ function showTooltip(d, id, data) {
             });
     } else if (factorType.val() === 'short-term') {
         let year = $yearSelector.val();
-        let factor = $('#short-term-row label.active').find('input');
+        let factor = $('#short-term-row label.active').find('input').val();
 
-        if (factor.val() === 'voter-turnout') {
+        if (factor === 'voter-turnout') {
             tooltip.loadTemplate('templates/tooltip/short_term_voter_turnout.html', {
                     stateName: d.properties.name,
                     voterTurnout: percentageFormat.format(d.properties.electionResults[year].voterTurnout),
                 });
+        } else if (factor === 'special') {
+            let partyIndicatorClass = null;
+
+            if (d.properties.electionResults[year].winnerParty === 'DEM') {
+                partyIndicatorClass = 'tooltip-party-indicator democrat-b';
+            } else if (d.properties.electionResults[year].winnerParty === 'REP') {
+                partyIndicatorClass = 'tooltip-party-indicator republican-b';
+            } else {
+                throw Error(`Unrecognized winner party "${d.properties.winnerParty}"`);
+            }
+
+            if (year === '2020') {
+                tooltip.loadTemplate('templates/tooltip/short_term_covid.html', {
+                    stateName: d.properties.name,
+                    covidImpact: numberFormat.format(d.properties.electionResults['2020'].covidImpact),
+                    partyIndicatorClass: partyIndicatorClass,
+                });
+            } else if (year === '2016' || year === '2012') {
+                tooltip.loadTemplate('templates/tooltip/short_term_internet_usage.html', {
+                    stateName: d.properties.name,
+                    internetUsage: percentageFormat.format(d.properties.electionResults[year].internetUsage),
+                    partyIndicatorClass: partyIndicatorClass,
+                });
+            }
         }
     } else if (factorType.val() === 'long-term') {
         let factor = $('#long-term-row label.active').find('input');
@@ -1021,7 +1136,7 @@ function storyStart() {
 
     storyStep(); // Make the first step
 
-    storyTimerHandle = new Timer(storyStep, 3000);
+    storyTimerHandle = new Timer(storyStep, STORY_STEP_TIMEOUT);
 }
 
 function storyToggle() {
