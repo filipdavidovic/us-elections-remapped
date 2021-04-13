@@ -190,11 +190,11 @@ function setContent() {
 
                 updateMapColors(mapColors.COVID);
             } else if (year === '2016') {
-                $storyline.loadTemplate('templates/storyline/short_term_2020_corona.html');
+                $storyline.loadTemplate('templates/storyline/short_term_2016.html');
 
                 updateMapColors(mapColors.INTERNET_USAGE);
             } else if (year === '2012') {
-                $storyline.loadTemplate('templates/storyline/short_term_2020_corona.html');
+                $storyline.loadTemplate('templates/storyline/short_term_2012.html');
 
                 updateMapColors(mapColors.INTERNET_USAGE);
             }
