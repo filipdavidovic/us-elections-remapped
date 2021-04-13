@@ -9,7 +9,7 @@ Current version of the project is hosted [here](https://visual-computing-project
 The project is built using "plain" JavaScript as a single page application, and is meant to run in a browser. Therefore, installing the project means cloning this repository and opening `index.html` in your favorite browser (application was implemented to be cross-browser compatible, but was tested on Google Chrome). It is meant to be used with a desktop browser only, so viewing it on a mobile device may have unpredicted behavior.
 
 ```bash
-git clone git@github.com:filipdavidovic/visual-computing-project.git
+git clone git@github.com:filipdavidovic/us-elections-remapped.git
 
 cd visual-computing-project
 
