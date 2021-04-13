@@ -1,7 +1,7 @@
 # Visual Computing Project - Group 15a
 This repository holds the work done by Group 15a (Catalin Bahrin, Theodor Chirvasuta, Filip Davidovic) in the 2021 iteration of the Visual Computing Project (2IMV10) course of TU/e. 
 
-The goal of the project was to represent election-related data in an understandable way. This is achieved by using map representations such as cartograms and colorpleths. The election-related data includes electoral college votes, as well as long- and short-term factors that influence election outcomes. You can read more about it in [the official report](TODO).
+The goal of the project was to represent election-related data in an understandable way. This is achieved by using map representations such as cartograms and colorpleths. The election-related data includes electoral college votes, as well as long- and short-term factors that influence election outcomes. You can read more about it in [the official report](https://mega.nz/file/NMgTzS4D#7zj2CufOSff8ICPNyOw4UMHsyIJyO3vVyZgf-m7E7c8).
 
 Current version of the project is hosted [here](https://visual-computing-project-group15a.netlify.app/).
 
